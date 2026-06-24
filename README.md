@@ -133,11 +133,15 @@ CommandPaletteView(loadingMessage: "Indexing…") {
 - **iPad (hardware keyboard):** the same up/down arrows, Return, and Esc, driven through
   SwiftUI's `onKeyPress` so the focused search field doesn't intercept the arrows.
 
-## Roadmap
+### Power-user keys (opt-in)
 
-Tracked in the originating issue; not yet in this first cut:
+Off by default to avoid surprising key interception. Enable Emacs-style `Ctrl-N`/`Ctrl-P`
+(move down/up) and Page Up/Down (jump a viewport-sized step) with a modifier:
 
-- Opt-in `Ctrl-N`/`Ctrl-P` and Page Up/Down navigation.
+```swift
+CommandPaletteView { buildCandidates() }
+    .commandPaletteExtendedKeyboardNavigation()
+```
 
 ## License
 

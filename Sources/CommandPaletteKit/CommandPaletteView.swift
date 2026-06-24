@@ -21,6 +21,7 @@ import SwiftUI
 /// from the supplied provider and re-scored on every keystroke.
 public struct CommandPaletteView<RowContent: View>: View {
     @Environment(\.dismiss) private var dismiss
+    @Environment(\.commandPaletteExtendedKeyboardNavigation) private var extendedNavigation
 
     @State private var query = ""
     @State private var candidates: [PaletteResult] = []
@@ -139,6 +140,28 @@ public struct CommandPaletteView<RowContent: View>: View {
         .onKeyPress(.upArrow) { move(by: -1); return .handled }
         .onKeyPress(.downArrow) { move(by: 1); return .handled }
         .onKeyPress(.escape) { dismiss(); return .handled }
+        // Opt-in power-user keys. The handlers are always attached but no-op (returning
+        // `.ignored`, so the key falls through to the field) unless the host has enabled
+        // them, keeping default behaviour unchanged when off. Ctrl-N/Ctrl-P share the "n"/"p"
+        // characters with normal typing, so they only act with the Control modifier held.
+        .onKeyPress(characters: CharacterSet(charactersIn: "np"), phases: [.down, .repeat]) { keyPress in
+            guard extendedNavigation, keyPress.modifiers.contains(.control) else { return .ignored }
+
+            move(by: keyPress.characters == "n" ? 1 : -1)
+            return .handled
+        }
+        .onKeyPress(.pageUp) {
+            guard extendedNavigation else { return .ignored }
+
+            move(by: -pageStep)
+            return .handled
+        }
+        .onKeyPress(.pageDown) {
+            guard extendedNavigation else { return .ignored }
+
+            move(by: pageStep)
+            return .handled
+        }
         #endif
     }
 
@@ -153,8 +176,27 @@ public struct CommandPaletteView<RowContent: View>: View {
                 switch event.keyCode {
                 case 125: move(by: 1); return nil
                 case 126: move(by: -1); return nil
-                default: return event
+                default: return extendedNavigation ? handleExtendedKey(event) : event
                 }
+            }
+        }
+
+        // The opt-in power-user keys on macOS, consumed only when enabled: Ctrl-N/Ctrl-P to
+        // move down/up and Page Up/Down (keyCodes 116/121) to jump a viewport. Returns `nil`
+        // to consume a handled event, or the original event to let it through. The text
+        // field's own Ctrl-N/Ctrl-P (line motion) and page scrolling are pre-empted here.
+        private func handleExtendedKey(_ event: NSEvent) -> NSEvent? {
+            if event.modifierFlags.contains(.control) {
+                switch event.charactersIgnoringModifiers {
+                case "n": move(by: 1); return nil
+                case "p": move(by: -1); return nil
+                default: break
+                }
+            }
+            switch event.keyCode {
+            case 116: move(by: -pageStep); return nil
+            case 121: move(by: pageStep); return nil
+            default: return event
             }
         }
 
@@ -270,6 +312,17 @@ public struct CommandPaletteView<RowContent: View>: View {
         guard count > 0 else { return }
 
         selectedIndex = min(max(selectedIndex + delta, 0), count - 1)
+    }
+
+    // How many rows Page Up/Down jumps: roughly a viewport of rows, keeping one row of
+    // overlap for context. Estimated from the surface height and a nominal row height
+    // (the list isn't measured), and never less than one row. Internal for testing.
+    var pageStep: Int {
+        let approximateRowHeight: CGFloat = 36
+        let searchFieldHeight: CGFloat = 56
+        let listHeight = max(height - searchFieldHeight, approximateRowHeight)
+        let rowsPerPage = Int((listHeight / approximateRowHeight).rounded(.down))
+        return max(rowsPerPage - 1, 1)
     }
 
     private func activateSelection() {
