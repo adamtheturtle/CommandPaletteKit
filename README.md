@@ -2,19 +2,13 @@
 
 [![CI](https://github.com/adamtheturtle/CommandPaletteKit/actions/workflows/ci.yml/badge.svg)](https://github.com/adamtheturtle/CommandPaletteKit/actions/workflows/ci.yml)
 
-A dependency-free, Combine-free SwiftUI command palette (⌘K) for macOS and iPad - the
-"jump to anything" overlay you get in VS Code, Raycast, or GitHub's `cmd-k`.
+A dependency-free, Combine-free SwiftUI command palette (⌘K) for macOS and iPad — the
+"jump to anything" overlay you get in VS Code, Raycast, or GitHub's `cmd-k`. It's an
+*action* palette: each result carries a `@MainActor` action it runs when activated.
 
-- **No dependencies, no Combine.** Pure SwiftUI + a tiny bit of AppKit for one macOS
-  keyboard fix. Drops into modern Swift-concurrency projects cleanly.
-- **An action palette, not a search box.** Each result carries a `@MainActor` action it
-  runs when activated - navigate, run a command, switch context.
-- **Built-in fuzzy matching.** A self-contained scorer (exact → prefix → word-boundary
-  substring → consecutive-run subsequence) with no index to build. Bring your own scorer
-  to add weighting, recency, or pinning.
-- **macOS-robust.** Handles the papercuts an iOS-first port misses: AppKit's field editor
-  swallowing the arrow keys, highlight/scroll drift as results re-sort, unified
-  hover-and-keyboard selection, and a VoiceOver `.isSelected` trait.
+Pure SwiftUI (plus a little AppKit for one macOS keyboard fix), with built-in fuzzy
+matching, hardware-keyboard navigation on macOS and iPad, and sensible defaults so the
+zero-config call site stays short.
 
 ## Installation
 
@@ -26,10 +20,7 @@ Swift Package Manager:
 
 Then add `"CommandPaletteKit"` to your target's dependencies.
 
-## Usage
-
-Present `CommandPaletteView` however you like (a sheet is typical) and hand it a closure
-that builds the candidate list:
+## Quick start
 
 ```swift
 import CommandPaletteKit
@@ -57,90 +48,23 @@ import CommandPaletteKit
 }
 ```
 
-Trigger it with a keyboard shortcut:
+Trigger it with the conventional ⌘K:
 
 ```swift
 .keyboardShortcut("k", modifiers: .command)
 ```
 
-## Customization
+## Documentation
 
-Everything below has a default that reproduces the shipped look, so the zero-config call
-site stays short. Override only what you need.
+Full documentation — getting started, customization (custom rows, async candidates,
+styling, scoring), and keyboard navigation — is published with DocC:
 
-| Knob | Where | Default |
-|---|---|---|
-| Candidate list | `candidates:` closure (sync **or** `async`) | required |
-| Trailing category tag | `PaletteResult.category` | `nil` (hidden) |
-| Icon | `PaletteResult.icon` (any `Image`) or `systemImage:` | required |
-| Hide until searching | `PaletteResult.showsOnlyWhenSearching` | `false` |
-| Match/scoring | `scorer:` | `paletteFuzzyScore` |
-| Result cap | `resultLimit:` | `40` |
-| Placeholder / empty / no-match copy | `placeholder:` / `emptyMessage:` / `noMatchesMessage:` | English defaults |
-| Surface size | `width:` / `height:` | `620 × 460` |
-| Activation routing | `onActivate:` | runs `result.action` |
-| Row cell | `row:` `@ViewBuilder` | built-in `PaletteRow` |
-| Colours & metrics | `.commandPaletteStyle(_:)` | accent fill, white-on-accent |
+**📖 [adamtheturtle.github.io/CommandPaletteKit](https://adamtheturtle.github.io/CommandPaletteKit/documentation/commandpalettekit)**
 
-```swift
-CommandPaletteView(
-    placeholder: "Jump to…",
-    resultLimit: 20,
-    scorer: myWeightedScorer
-) { buildCandidates() }
-.commandPaletteStyle(
-    CommandPaletteStyle(selectionColor: .blue, rowCornerRadius: 10)
-)
-```
+To browse it locally:
 
-### Custom rows
-
-Pass a `row` builder to replace the cell entirely. It receives the `PaletteResult` and
-whether it is the current selection; the container keeps owning selection, hover,
-scroll-to, and accessibility, so you only describe the cell's appearance:
-
-```swift
-CommandPaletteView(candidates: { buildCandidates() }) { result, isSelected in
-    HStack {
-        result.icon
-        Text(result.title).bold(isSelected)
-        Spacer()
-    }
-    .padding(.vertical, 6)
-}
-```
-
-The built-in `PaletteRow` is public, so a custom builder can also wrap or decorate it
-rather than start from scratch.
-
-### Async candidates
-
-When the candidate list comes from disk, a database, or the network, pass an `async`
-provider instead. The palette presents immediately and shows a loading affordance until
-the provider resolves; the synchronous form above is unchanged:
-
-```swift
-CommandPaletteView(loadingMessage: "Indexing…") {
-    await loadCandidatesFromDisk()   // @MainActor () async -> [PaletteResult]
-}
-```
-
-## Keyboard navigation
-
-- **macOS:** up/down arrows move the selection, Return activates, Esc dismisses. The arrow
-  keys are driven by a local `NSEvent` monitor because AppKit's field editor would
-  otherwise swallow them for caret movement.
-- **iPad (hardware keyboard):** the same up/down arrows, Return, and Esc, driven through
-  SwiftUI's `onKeyPress` so the focused search field doesn't intercept the arrows.
-
-### Power-user keys (opt-in)
-
-Off by default to avoid surprising key interception. Enable Emacs-style `Ctrl-N`/`Ctrl-P`
-(move down/up) and Page Up/Down (jump a viewport-sized step) with a modifier:
-
-```swift
-CommandPaletteView { buildCandidates() }
-    .commandPaletteExtendedKeyboardNavigation()
+```sh
+swift package --disable-sandbox preview-documentation --target CommandPaletteKit
 ```
 
 ## License

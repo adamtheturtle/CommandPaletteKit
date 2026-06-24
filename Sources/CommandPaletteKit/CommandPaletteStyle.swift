@@ -10,7 +10,7 @@
 import SwiftUI
 
 /// Colours and metrics for the palette surface and its rows. Apply with
-/// ``SwiftUI/View/commandPaletteStyle(_:)``; unset values fall back to the defaults.
+/// ``SwiftUICore/View/commandPaletteStyle(_:)``; unset values fall back to the defaults.
 public struct CommandPaletteStyle: Sendable {
     /// Fill behind the selected row.
     public var selectionColor: Color

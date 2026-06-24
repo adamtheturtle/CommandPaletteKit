@@ -4,7 +4,7 @@
 //
 //  Opt-in extra keyboard navigation for the palette. Off by default so the palette never
 //  intercepts keys a host might want; enable it per view with
-//  ``SwiftUI/View/commandPaletteExtendedKeyboardNavigation(_:)``.
+//  ``SwiftUICore/View/commandPaletteExtendedKeyboardNavigation(_:)``.
 //
 
 import SwiftUI

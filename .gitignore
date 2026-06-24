@@ -5,3 +5,5 @@ xcuserdata/
 *.xcodeproj
 .swiftpm/
 .netrc
+# Generated DocC static site (built in CI, deployed to GitHub Pages)
+/docs-site
