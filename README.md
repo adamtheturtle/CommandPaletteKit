@@ -79,6 +79,7 @@ site stays short. Override only what you need.
 | Placeholder / empty / no-match copy | `placeholder:` / `emptyMessage:` / `noMatchesMessage:` | English defaults |
 | Surface size | `width:` / `height:` | `620 × 460` |
 | Activation routing | `onActivate:` | runs `result.action` |
+| Row cell | `row:` `@ViewBuilder` | built-in `PaletteRow` |
 | Colours & metrics | `.commandPaletteStyle(_:)` | accent fill, white-on-accent |
 
 ```swift
@@ -92,12 +93,31 @@ CommandPaletteView(
 )
 ```
 
+### Custom rows
+
+Pass a `row` builder to replace the cell entirely. It receives the `PaletteResult` and
+whether it is the current selection; the container keeps owning selection, hover,
+scroll-to, and accessibility, so you only describe the cell's appearance:
+
+```swift
+CommandPaletteView(candidates: { buildCandidates() }) { result, isSelected in
+    HStack {
+        result.icon
+        Text(result.title).bold(isSelected)
+        Spacer()
+    }
+    .padding(.vertical, 6)
+}
+```
+
+The built-in `PaletteRow` is public, so a custom builder can also wrap or decorate it
+rather than start from scratch.
+
 ## Roadmap
 
 Tracked in the originating issue; not yet in this first cut:
 
 - iPad hardware-keyboard navigation (the macOS arrow-key path is already factored out).
-- A custom row `@ViewBuilder` for hosts that want a different cell.
 - Opt-in `Ctrl-N`/`Ctrl-P` and Page Up/Down navigation.
 
 ## License

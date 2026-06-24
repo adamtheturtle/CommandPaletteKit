@@ -9,13 +9,22 @@
 
 import SwiftUI
 
-struct PaletteRow: View {
+/// The palette's built-in row: leading glyph, title and optional subtitle, and a trailing
+/// category tag, highlighting when selected. This is the default cell ``CommandPaletteView``
+/// renders, and is public so a custom `row` builder can reuse or wrap it.
+public struct PaletteRow: View {
     let result: PaletteResult
     let isSelected: Bool
 
     @Environment(\.commandPaletteStyle) private var style
 
-    var body: some View {
+    /// Creates a row for `result`, drawing it as selected when `isSelected` is `true`.
+    public init(result: PaletteResult, isSelected: Bool) {
+        self.result = result
+        self.isSelected = isSelected
+    }
+
+    public var body: some View {
         HStack(spacing: 12) {
             result.icon
                 .frame(width: 22)

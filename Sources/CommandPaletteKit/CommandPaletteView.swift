@@ -19,7 +19,7 @@ import SwiftUI
 /// The command palette surface: a search field above a scrolling, keyboard-navigable
 /// result list. Owns the query and the selection; the candidate list is built on appear
 /// from the supplied provider and re-scored on every keystroke.
-public struct CommandPaletteView: View {
+public struct CommandPaletteView<RowContent: View>: View {
     @Environment(\.dismiss) private var dismiss
 
     @State private var query = ""
@@ -43,6 +43,7 @@ public struct CommandPaletteView: View {
     private let width: CGFloat
     private let height: CGFloat
     private let onActivate: (@MainActor (PaletteResult) -> Void)?
+    private let row: (PaletteResult, Bool) -> RowContent
 
     /// Creates a palette.
     ///
@@ -58,6 +59,10 @@ public struct CommandPaletteView: View {
     ///     provided - lets the host route activation itself. When `nil`, the palette
     ///     dismisses and calls `result.action`.
     ///   - candidates: Builds the candidate list. Evaluated on appear (and on the main actor).
+    ///   - row: Builds the content for each row from its ``PaletteResult`` and whether it
+    ///     is the current selection. Selection, hover, scroll-to, and accessibility wiring
+    ///     stay with the container, so a custom row only supplies the cell's appearance.
+    ///     Omit it (via the ``PaletteRow`` convenience initializer) for the built-in cell.
     public init(
         placeholder: LocalizedStringKey = "Search…",
         emptyMessage: LocalizedStringKey = "Start typing to search.",
@@ -67,7 +72,8 @@ public struct CommandPaletteView: View {
         width: CGFloat = 620,
         height: CGFloat = 460,
         onActivate: (@MainActor (PaletteResult) -> Void)? = nil,
-        candidates: @escaping @MainActor () -> [PaletteResult]
+        candidates: @escaping @MainActor () -> [PaletteResult],
+        @ViewBuilder row: @escaping (PaletteResult, Bool) -> RowContent
     ) {
         self.placeholder = placeholder
         self.emptyMessage = emptyMessage
@@ -78,6 +84,7 @@ public struct CommandPaletteView: View {
         self.height = height
         self.onActivate = onActivate
         self.provider = candidates
+        self.row = row
     }
 
     private var results: [PaletteResult] {
@@ -201,7 +208,7 @@ public struct CommandPaletteView: View {
     }
 
     private func resultRow(_ result: PaletteResult, index: Int) -> some View {
-        PaletteRow(result: result, isSelected: index == selectedIndex)
+        row(result, index == selectedIndex)
             // Identify the row by the result's stable id (matching the ForEach identity),
             // not its position: a bare `.id(index)` keeps ids 0,1,2… fixed while a search
             // re-orders the content under them, so the highlight and scroll target drift.
@@ -251,5 +258,48 @@ public struct CommandPaletteView: View {
         } else {
             result.action()
         }
+    }
+}
+
+extension CommandPaletteView where RowContent == PaletteRow {
+    /// Creates a palette using the built-in ``PaletteRow`` for each cell. This is the
+    /// zero-configuration call site; supply a `row` builder on the designated initializer
+    /// to replace the cell content.
+    ///
+    /// - Parameters:
+    ///   - placeholder: Prompt shown in the empty search field.
+    ///   - emptyMessage: Shown when the query is empty and nothing is listed yet.
+    ///   - noMatchesMessage: Shown when a non-empty query matches nothing.
+    ///   - resultLimit: Maximum rows rendered; the highest-scoring win. Pass `.max` for no limit.
+    ///   - scorer: Match/scoring function. Defaults to ``paletteFuzzyScore(_:_:)``.
+    ///   - width: Surface width.
+    ///   - height: Surface height.
+    ///   - onActivate: Called instead of `result.action` when a row is activated, if
+    ///     provided - lets the host route activation itself. When `nil`, the palette
+    ///     dismisses and calls `result.action`.
+    ///   - candidates: Builds the candidate list. Evaluated on appear (and on the main actor).
+    public init(
+        placeholder: LocalizedStringKey = "Search…",
+        emptyMessage: LocalizedStringKey = "Start typing to search.",
+        noMatchesMessage: LocalizedStringKey = "No matches.",
+        resultLimit: Int = 40,
+        scorer: @escaping PaletteScorer = paletteFuzzyScore,
+        width: CGFloat = 620,
+        height: CGFloat = 460,
+        onActivate: (@MainActor (PaletteResult) -> Void)? = nil,
+        candidates: @escaping @MainActor () -> [PaletteResult]
+    ) {
+        self.init(
+            placeholder: placeholder,
+            emptyMessage: emptyMessage,
+            noMatchesMessage: noMatchesMessage,
+            resultLimit: resultLimit,
+            scorer: scorer,
+            width: width,
+            height: height,
+            onActivate: onActivate,
+            candidates: candidates,
+            row: { result, isSelected in PaletteRow(result: result, isSelected: isSelected) }
+        )
     }
 }
