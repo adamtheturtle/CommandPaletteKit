@@ -1,0 +1,10 @@
+# SwiftLint configuration for CommandPaletteKit.
+# Lints the hand-written sources and tests; the SwiftPM build directory holds
+# generated code (e.g. the test entry point) that we never want to lint.
+
+included:
+  - Sources
+  - Tests
+
+excluded:
+  - .build

@@ -1,5 +1,7 @@
 # CommandPaletteKit
 
+[![CI](https://github.com/adamtheturtle/CommandPaletteKit/actions/workflows/ci.yml/badge.svg)](https://github.com/adamtheturtle/CommandPaletteKit/actions/workflows/ci.yml)
+
 A dependency-free, Combine-free SwiftUI command palette (⌘K) for macOS and iPad - the
 "jump to anything" overlay you get in VS Code, Raycast, or GitHub's `cmd-k`.
 
