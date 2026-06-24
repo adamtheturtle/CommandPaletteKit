@@ -25,6 +25,7 @@ public struct CommandPaletteView<RowContent: View>: View {
     @State private var query = ""
     @State private var candidates: [PaletteResult] = []
     @State private var selectedIndex = 0
+    @State private var isLoading = false
     @FocusState private var queryFocused: Bool
     #if os(macOS)
         // Local key-event monitor for the up/down arrows. The search field is focused so
@@ -34,10 +35,19 @@ public struct CommandPaletteView<RowContent: View>: View {
         @State private var arrowKeyMonitor: Any?
     #endif
 
-    private let provider: @MainActor () -> [PaletteResult]
+    // Where the candidate list comes from: built synchronously on appear, or awaited from
+    // an async provider (showing a loading affordance until it resolves). Internal so the
+    // public initializers in CommandPaletteView+Initializers.swift can construct it.
+    enum CandidateSource {
+        case sync(@MainActor () -> [PaletteResult])
+        case async(@MainActor () async -> [PaletteResult])
+    }
+
+    private let source: CandidateSource
     private let placeholder: LocalizedStringKey
     private let emptyMessage: LocalizedStringKey
     private let noMatchesMessage: LocalizedStringKey
+    private let loadingMessage: LocalizedStringKey
     private let resultLimit: Int
     private let scorer: PaletteScorer
     private let width: CGFloat
@@ -45,45 +55,32 @@ public struct CommandPaletteView<RowContent: View>: View {
     private let onActivate: (@MainActor (PaletteResult) -> Void)?
     private let row: (PaletteResult, Bool) -> RowContent
 
-    /// Creates a palette.
-    ///
-    /// - Parameters:
-    ///   - placeholder: Prompt shown in the empty search field.
-    ///   - emptyMessage: Shown when the query is empty and nothing is listed yet.
-    ///   - noMatchesMessage: Shown when a non-empty query matches nothing.
-    ///   - resultLimit: Maximum rows rendered; the highest-scoring win. Pass `.max` for no limit.
-    ///   - scorer: Match/scoring function. Defaults to ``paletteFuzzyScore(_:_:)``.
-    ///   - width: Surface width.
-    ///   - height: Surface height.
-    ///   - onActivate: Called instead of `result.action` when a row is activated, if
-    ///     provided - lets the host route activation itself. When `nil`, the palette
-    ///     dismisses and calls `result.action`.
-    ///   - candidates: Builds the candidate list. Evaluated on appear (and on the main actor).
-    ///   - row: Builds the content for each row from its ``PaletteResult`` and whether it
-    ///     is the current selection. Selection, hover, scroll-to, and accessibility wiring
-    ///     stay with the container, so a custom row only supplies the cell's appearance.
-    ///     Omit it (via the ``PaletteRow`` convenience initializer) for the built-in cell.
-    public init(
-        placeholder: LocalizedStringKey = "Search…",
-        emptyMessage: LocalizedStringKey = "Start typing to search.",
-        noMatchesMessage: LocalizedStringKey = "No matches.",
-        resultLimit: Int = 40,
-        scorer: @escaping PaletteScorer = paletteFuzzyScore,
-        width: CGFloat = 620,
-        height: CGFloat = 460,
-        onActivate: (@MainActor (PaletteResult) -> Void)? = nil,
-        candidates: @escaping @MainActor () -> [PaletteResult],
-        @ViewBuilder row: @escaping (PaletteResult, Bool) -> RowContent
+    // The fully-specified initializer all public initializers funnel into. Kept internal
+    // (not private) so the public initializers in CommandPaletteView+Initializers.swift can
+    // reach it; the public surface is the initializers in that file.
+    init(
+        source: CandidateSource,
+        placeholder: LocalizedStringKey,
+        emptyMessage: LocalizedStringKey,
+        noMatchesMessage: LocalizedStringKey,
+        loadingMessage: LocalizedStringKey,
+        resultLimit: Int,
+        scorer: @escaping PaletteScorer,
+        width: CGFloat,
+        height: CGFloat,
+        onActivate: (@MainActor (PaletteResult) -> Void)?,
+        row: @escaping (PaletteResult, Bool) -> RowContent
     ) {
+        self.source = source
         self.placeholder = placeholder
         self.emptyMessage = emptyMessage
         self.noMatchesMessage = noMatchesMessage
+        self.loadingMessage = loadingMessage
         self.resultLimit = resultLimit
         self.scorer = scorer
         self.width = width
         self.height = height
         self.onActivate = onActivate
-        self.provider = candidates
         self.row = row
     }
 
@@ -114,11 +111,22 @@ public struct CommandPaletteView<RowContent: View>: View {
         }
         .frame(width: width, height: height)
         .onAppear {
-            candidates = provider()
+            // Build a synchronous list up front so the zero-config case shows instantly
+            // with no loading flash. The async source is loaded in `.task` below.
+            if case .sync(let provider) = source {
+                candidates = provider()
+            }
             queryFocused = true
             #if os(macOS)
                 installArrowKeyMonitor()
             #endif
+        }
+        .task {
+            guard case .async(let provider) = source else { return }
+
+            isLoading = true
+            candidates = await provider()
+            isLoading = false
         }
         #if os(macOS)
         .onDisappear(perform: removeArrowKeyMonitor)
@@ -186,12 +194,23 @@ public struct CommandPaletteView<RowContent: View>: View {
     @ViewBuilder
     private var resultsContent: some View {
         LazyVStack(spacing: 2) {
-            if results.isEmpty {
+            if isLoading && results.isEmpty {
+                loadingMessageView
+            } else if results.isEmpty {
                 emptyResultsMessage
             } else {
                 resultRows
             }
         }
+    }
+
+    private var loadingMessageView: some View {
+        ProgressView {
+            Text(loadingMessage)
+                .foregroundStyle(.secondary)
+        }
+        .frame(maxWidth: .infinity, alignment: .center)
+        .padding(.top, 40)
     }
 
     private var emptyResultsMessage: some View {
@@ -258,48 +277,5 @@ public struct CommandPaletteView<RowContent: View>: View {
         } else {
             result.action()
         }
-    }
-}
-
-extension CommandPaletteView where RowContent == PaletteRow {
-    /// Creates a palette using the built-in ``PaletteRow`` for each cell. This is the
-    /// zero-configuration call site; supply a `row` builder on the designated initializer
-    /// to replace the cell content.
-    ///
-    /// - Parameters:
-    ///   - placeholder: Prompt shown in the empty search field.
-    ///   - emptyMessage: Shown when the query is empty and nothing is listed yet.
-    ///   - noMatchesMessage: Shown when a non-empty query matches nothing.
-    ///   - resultLimit: Maximum rows rendered; the highest-scoring win. Pass `.max` for no limit.
-    ///   - scorer: Match/scoring function. Defaults to ``paletteFuzzyScore(_:_:)``.
-    ///   - width: Surface width.
-    ///   - height: Surface height.
-    ///   - onActivate: Called instead of `result.action` when a row is activated, if
-    ///     provided - lets the host route activation itself. When `nil`, the palette
-    ///     dismisses and calls `result.action`.
-    ///   - candidates: Builds the candidate list. Evaluated on appear (and on the main actor).
-    public init(
-        placeholder: LocalizedStringKey = "Search…",
-        emptyMessage: LocalizedStringKey = "Start typing to search.",
-        noMatchesMessage: LocalizedStringKey = "No matches.",
-        resultLimit: Int = 40,
-        scorer: @escaping PaletteScorer = paletteFuzzyScore,
-        width: CGFloat = 620,
-        height: CGFloat = 460,
-        onActivate: (@MainActor (PaletteResult) -> Void)? = nil,
-        candidates: @escaping @MainActor () -> [PaletteResult]
-    ) {
-        self.init(
-            placeholder: placeholder,
-            emptyMessage: emptyMessage,
-            noMatchesMessage: noMatchesMessage,
-            resultLimit: resultLimit,
-            scorer: scorer,
-            width: width,
-            height: height,
-            onActivate: onActivate,
-            candidates: candidates,
-            row: { result, isSelected in PaletteRow(result: result, isSelected: isSelected) }
-        )
     }
 }

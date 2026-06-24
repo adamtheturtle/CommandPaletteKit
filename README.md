@@ -70,7 +70,7 @@ site stays short. Override only what you need.
 
 | Knob | Where | Default |
 |---|---|---|
-| Candidate list | `candidates:` closure | required |
+| Candidate list | `candidates:` closure (sync **or** `async`) | required |
 | Trailing category tag | `PaletteResult.category` | `nil` (hidden) |
 | Icon | `PaletteResult.icon` (any `Image`) or `systemImage:` | required |
 | Hide until searching | `PaletteResult.showsOnlyWhenSearching` | `false` |
@@ -112,6 +112,18 @@ CommandPaletteView(candidates: { buildCandidates() }) { result, isSelected in
 
 The built-in `PaletteRow` is public, so a custom builder can also wrap or decorate it
 rather than start from scratch.
+
+### Async candidates
+
+When the candidate list comes from disk, a database, or the network, pass an `async`
+provider instead. The palette presents immediately and shows a loading affordance until
+the provider resolves; the synchronous form above is unchanged:
+
+```swift
+CommandPaletteView(loadingMessage: "Indexing…") {
+    await loadCandidatesFromDisk()   // @MainActor () async -> [PaletteResult]
+}
+```
 
 ## Roadmap
 
