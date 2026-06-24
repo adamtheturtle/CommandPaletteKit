@@ -125,11 +125,18 @@ CommandPaletteView(loadingMessage: "Indexing…") {
 }
 ```
 
+## Keyboard navigation
+
+- **macOS:** up/down arrows move the selection, Return activates, Esc dismisses. The arrow
+  keys are driven by a local `NSEvent` monitor because AppKit's field editor would
+  otherwise swallow them for caret movement.
+- **iPad (hardware keyboard):** the same up/down arrows, Return, and Esc, driven through
+  SwiftUI's `onKeyPress` so the focused search field doesn't intercept the arrows.
+
 ## Roadmap
 
 Tracked in the originating issue; not yet in this first cut:
 
-- iPad hardware-keyboard navigation (the macOS arrow-key path is already factored out).
 - Opt-in `Ctrl-N`/`Ctrl-P` and Page Up/Down navigation.
 
 ## License

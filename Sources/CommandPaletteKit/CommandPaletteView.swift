@@ -131,6 +131,15 @@ public struct CommandPaletteView<RowContent: View>: View {
         #if os(macOS)
         .onDisappear(perform: removeArrowKeyMonitor)
         #endif
+        #if os(iOS)
+        // iPad hardware-keyboard navigation. The search field is the focused descendant, so
+        // these ancestor handlers see its key events first and consume the arrows (returning
+        // `.handled`) before the field would move its caret - the macOS equivalent of the
+        // NSEvent monitor above. Return is already handled by the field's `onSubmit`.
+        .onKeyPress(.upArrow) { move(by: -1); return .handled }
+        .onKeyPress(.downArrow) { move(by: 1); return .handled }
+        .onKeyPress(.escape) { dismiss(); return .handled }
+        #endif
     }
 
     #if os(macOS)
