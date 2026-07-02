@@ -4,7 +4,7 @@
 [![Swift Package Index versions](https://img.shields.io/endpoint?url=https%3A%2F%2Fswiftpackageindex.com%2Fapi%2Fpackages%2Fadamtheturtle%2FCommandPaletteKit%2Fbadge%3Ftype%3Dswift-versions)](https://swiftpackageindex.com/adamtheturtle/CommandPaletteKit)
 [![Swift Package Index platforms](https://img.shields.io/endpoint?url=https%3A%2F%2Fswiftpackageindex.com%2Fapi%2Fpackages%2Fadamtheturtle%2FCommandPaletteKit%2Fbadge%3Ftype%3Dplatforms)](https://swiftpackageindex.com/adamtheturtle/CommandPaletteKit)
 
-A dependency-free, Combine-free SwiftUI command palette (⌘K) for macOS and iPad — the
+A dependency-free, Combine-free SwiftUI command palette (⌘K) for macOS and iPad - the
 "jump to anything" overlay you get in VS Code, Raycast, or GitHub's `cmd-k`. It's an
 *action* palette: each result carries a `@MainActor` action it runs when activated.
 
@@ -58,10 +58,10 @@ Trigger it with the conventional ⌘K:
 
 ## Documentation
 
-Full documentation — getting started, customization (custom rows, async candidates,
-styling, scoring), and keyboard navigation — is published with DocC:
+Full documentation - getting started, customization (custom rows, async candidates,
+styling, scoring), and keyboard navigation - is published with DocC:
 
-**📖 [adamtheturtle.github.io/CommandPaletteKit](https://adamtheturtle.github.io/CommandPaletteKit/documentation/commandpalettekit)**
+**[Swift Package Index documentation](https://swiftpackageindex.com/adamtheturtle/CommandPaletteKit/documentation/commandpalettekit)**
 
 To browse it locally:
 

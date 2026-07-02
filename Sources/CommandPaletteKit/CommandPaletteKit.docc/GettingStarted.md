@@ -5,7 +5,7 @@ Present the palette, supply candidates, and wire up a shortcut.
 ## Overview
 
 ``CommandPaletteView`` is a self-contained surface: a search field above a scrolling,
-keyboard-navigable result list. Present it however you like — a sheet is typical — and
+keyboard-navigable result list. Present it however you like - a sheet is typical - and
 hand it a closure that builds the candidate list.
 
 ### Present the palette
@@ -56,17 +56,17 @@ Bind the presentation to the conventional ⌘K:
 Each ``PaletteResult`` is a row plus a `@MainActor` action. A few fields shape how it is
 found and shown:
 
-- ``PaletteResult/searchText`` is what the query scores against — fold in synonyms so a row
+- ``PaletteResult/searchText`` is what the query scores against - fold in synonyms so a row
   is found by more than its title (e.g. find "Reload" by typing "refresh").
 - ``PaletteResult/showsOnlyWhenSearching`` hides a row until the user types, so a large
   category doesn't flood the empty-query list yet stays reachable by searching.
-- ``PaletteResult/category`` is an optional trailing tag — free text, so the palette stays
+- ``PaletteResult/category`` is an optional trailing tag - free text, so the palette stays
   domain-agnostic.
 
 ### Route activation
 
 By default the palette dismisses and calls the result's `action`. Pass `onActivate:` to
-route activation yourself instead — useful when a single handler should dispatch every
+route activation yourself instead - useful when a single handler should dispatch every
 result:
 
 ```swift

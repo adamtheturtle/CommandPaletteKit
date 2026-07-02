@@ -1,6 +1,6 @@
 # Customization
 
-Override only what you need — every knob has a default that reproduces the shipped look.
+Override only what you need - every knob has a default that reproduces the shipped look.
 
 ## Overview
 
@@ -84,7 +84,7 @@ CommandPaletteView(loadingMessage: "Indexing…") {
 
 The default ``paletteFuzzyScore(_:_:)`` ranks exact matches highest, then prefix, then
 word-boundary substrings, then consecutive-run subsequences. Supply your own
-``PaletteScorer`` to add weighting, recency, or pinning — return `nil` to exclude a
+``PaletteScorer`` to add weighting, recency, or pinning - return `nil` to exclude a
 candidate, or a higher score to rank it closer to the top.
 
 ```swift

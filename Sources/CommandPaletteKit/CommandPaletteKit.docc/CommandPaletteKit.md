@@ -1,12 +1,12 @@
 # ``CommandPaletteKit``
 
-A dependency-free, Combine-free SwiftUI command palette (⌘K) for macOS and iPad — the
+A dependency-free, Combine-free SwiftUI command palette (⌘K) for macOS and iPad - the
 "jump to anything" overlay you get in VS Code, Raycast, or GitHub's `cmd-k`.
 
 ## Overview
 
 `CommandPaletteKit` is an *action* palette, not just a search box: each result carries a
-`@MainActor` action it runs when activated — navigate, run a command, switch context.
+`@MainActor` action it runs when activated - navigate, run a command, switch context.
 Present ``CommandPaletteView`` however you like (typically a sheet over your main window),
 hand it a closure that builds the candidates, and the palette owns the query, fuzzy
 matching, keyboard navigation, and selection for you.
