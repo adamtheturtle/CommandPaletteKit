@@ -28,12 +28,27 @@ public struct CommandPaletteView<RowContent: View>: View {
     @State private var selectedIndex = 0
     @State private var isLoading = false
     @FocusState private var queryFocused: Bool
+    // Keeps a scroll-induced hover from stealing the selection back from the keyboard.
+    // `@State`, not a local: the hover handler and `move(by:)` are different callbacks and
+    // must share one gate.
+    @State private var hoverGate = HoverSelectionGate()
+    // A snapshot of `extendedNavigation`, refreshed from `body` (below) whenever the
+    // environment value changes. `@Environment` is only meaningful while the view is
+    // installed, so the escaping key-monitor closure - which runs long after body
+    // evaluation - reads this instead; reading the environment property there yields the
+    // default (`false`) and quietly disables the opt-in keys altogether.
+    @State var extendedNavigationEnabled = false
     #if os(macOS)
         // Local key-event monitor for the up/down arrows. The search field is focused so
         // the user can type, but AppKit's field editor then swallows the arrow keys for
         // caret movement before SwiftUI's `.onKeyPress` ever sees them - so we watch for
         // them at the event level and drive the selection ourselves.
-        @State private var arrowKeyMonitor: Any?
+        // Internal, not private: the monitor itself lives in
+        // CommandPaletteView+KeyMonitor.swift, and `private` is file-scoped.
+        @State var arrowKeyMonitor: Any?
+        // The window the palette is presented in, so the monitor can tell the palette's own
+        // key events from those of every other window in the application.
+        @State var paletteWindow: NSWindow?
     #endif
 
     // Where the candidate list comes from: built synchronously on appear, or awaited from
@@ -111,6 +126,15 @@ public struct CommandPaletteView<RowContent: View>: View {
             resultsList
         }
         .frame(width: width, height: height)
+        // Read the environment value here, during body evaluation, where it is actually
+        // installed - and mirror it into `@State` for the escaping monitor closure to use.
+        // `initial: true` seeds it on the first evaluation, so the two never disagree.
+        .onChange(of: extendedNavigation, initial: true) { _, enabled in
+            extendedNavigationEnabled = enabled
+        }
+        #if os(macOS)
+        .background(WindowReader { paletteWindow = $0 })
+        #endif
         .onAppear {
             // Build a synchronous list up front so the zero-config case shows instantly
             // with no loading flash. The async source is loaded in `.task` below.
@@ -164,49 +188,6 @@ public struct CommandPaletteView<RowContent: View>: View {
         }
         #endif
     }
-
-    #if os(macOS)
-        // Watches key-down events while the palette is open and moves the selection on the
-        // up/down arrows, consuming them so the focused field doesn't also move its caret.
-        // `keyCode` 125 is the down arrow, 126 the up arrow.
-        private func installArrowKeyMonitor() {
-            guard arrowKeyMonitor == nil else { return }
-
-            arrowKeyMonitor = NSEvent.addLocalMonitorForEvents(matching: .keyDown) { event in
-                switch event.keyCode {
-                case 125: move(by: 1); return nil
-                case 126: move(by: -1); return nil
-                default: return extendedNavigation ? handleExtendedKey(event) : event
-                }
-            }
-        }
-
-        // The opt-in power-user keys on macOS, consumed only when enabled: Ctrl-N/Ctrl-P to
-        // move down/up and Page Up/Down (keyCodes 116/121) to jump a viewport. Returns `nil`
-        // to consume a handled event, or the original event to let it through. The text
-        // field's own Ctrl-N/Ctrl-P (line motion) and page scrolling are pre-empted here.
-        private func handleExtendedKey(_ event: NSEvent) -> NSEvent? {
-            if event.modifierFlags.contains(.control) {
-                switch event.charactersIgnoringModifiers {
-                case "n": move(by: 1); return nil
-                case "p": move(by: -1); return nil
-                default: break
-                }
-            }
-            switch event.keyCode {
-            case 116: move(by: -pageStep); return nil
-            case 121: move(by: pageStep); return nil
-            default: return event
-            }
-        }
-
-        private func removeArrowKeyMonitor() {
-            if let monitor = arrowKeyMonitor {
-                NSEvent.removeMonitor(monitor)
-                arrowKeyMonitor = nil
-            }
-        }
-    #endif
 
     private var searchField: some View {
         HStack(spacing: 10) {
@@ -288,8 +269,16 @@ public struct CommandPaletteView<RowContent: View>: View {
             // Hovering a row makes it the selection, so the mouse and keyboard share one
             // highlight and a click always activates the row under the cursor. The hovered
             // row is by definition visible, so the scroll handler can't lurch the list.
+            //
+            // The reverse coupling does need guarding: a keyboard move scrolls the list,
+            // which slides rows under a stationary cursor, which SwiftUI reports as a hover
+            // that would write the selection straight back. ``HoverSelectionGate`` ignores
+            // hovers for a moment after a keyboard move so navigation can't be stalled by a
+            // mouse that is simply sitting there.
             .onHover { hovering in
-                if hovering { selectedIndex = index }
+                guard hovering, hoverGate.allowsHoverSelection() else { return }
+
+                selectedIndex = index
             }
             // One combined element per row so VoiceOver reads it as a single button, and
             // the selected one announces (and exposes for tests) the `.isSelected` trait.
@@ -307,11 +296,19 @@ public struct CommandPaletteView<RowContent: View>: View {
         withAnimation(.easeOut(duration: 0.1)) { proxy.scrollTo(id) }
     }
 
-    private func move(by delta: Int) {
+    // Internal so the macOS key monitor in CommandPaletteView+KeyMonitor.swift can
+    // drive it; `private` is file-scoped.
+    func move(by delta: Int) {
         let count = results.count
         guard count > 0 else { return }
 
-        selectedIndex = min(max(selectedIndex + delta, 0), count - 1)
+        let new = min(max(selectedIndex + delta, 0), count - 1)
+        guard new != selectedIndex else { return }
+
+        // Hold hover off for a beat: this selection change is about to scroll the list, and
+        // the rows sliding under the cursor would otherwise hover the selection back.
+        hoverGate.keyboardDidMove()
+        selectedIndex = new
     }
 
     // How many rows Page Up/Down jumps: roughly a viewport of rows, keeping one row of
