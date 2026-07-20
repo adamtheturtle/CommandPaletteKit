@@ -275,11 +275,13 @@ public struct CommandPaletteView<RowContent: View>: View {
             // that would write the selection straight back. ``HoverSelectionGate`` ignores
             // hovers for a moment after a keyboard move so navigation can't be stalled by a
             // mouse that is simply sitting there.
-            .onHover { hovering in
-                guard hovering, hoverGate.allowsHoverSelection() else { return }
+            #if !os(tvOS)
+                .onHover { hovering in
+                    guard hovering, hoverGate.allowsHoverSelection() else { return }
 
-                selectedIndex = index
-            }
+                    selectedIndex = index
+                }
+            #endif
             // One combined element per row so VoiceOver reads it as a single button, and
             // the selected one announces (and exposes for tests) the `.isSelected` trait.
             .accessibilityElement(children: .combine)
