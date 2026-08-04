@@ -38,6 +38,24 @@ struct CommandPaletteNavigationTests {
         #expect(step <= 20)
     }
 
+    @Test("Custom row heights change the viewport-sized step")
+    func customRowHeights() {
+        let compactRows = pageNavigationStep(for: 460, rowHeight: 18)
+        let defaultRows = pageNavigationStep(for: 460, rowHeight: 36)
+        let tallRows = pageNavigationStep(for: 460, rowHeight: 96)
+
+        #expect(compactRows > defaultRows)
+        #expect(defaultRows > tallRows)
+        #expect(tallRows >= 1)
+    }
+
+    @Test("Realized row measurements use their average height")
+    func representativeHeight() {
+        #expect(representativePaletteRowHeight([20, 40, 60]) == 40)
+        #expect(representativePaletteRowHeight([.nan, 0, -1]) == 36)
+        #expect(representativePaletteRowHeight([20, .infinity, 40]) == 30)
+    }
+
     @Test("Invalid and oversized heights never trap during page-step calculation")
     func pathologicalHeightsAreSafe() {
         for height in [CGFloat.nan, .infinity, -.infinity, -1, 0] {

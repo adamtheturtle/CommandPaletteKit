@@ -47,6 +47,7 @@ public struct CommandPaletteView<RowContent: View>: View {
     @State private var selectedIndex = 0
     @State private var isLoading = false
     @State var candidateLoadGeneration = CandidateLoadGeneration()
+    @State private var measuredRowHeights: [String: CGFloat] = [:]
     @FocusState private var queryFocused: Bool
     // Keeps a scroll-induced hover from stealing the selection back from the keyboard.
     // `@State`, not a local: the hover handler and `move(by:)` are different callbacks and
@@ -238,6 +239,9 @@ public struct CommandPaletteView<RowContent: View>: View {
             .onChange(of: selectedIndex) { _, new in
                 scrollSelection(new, proxy: proxy)
             }
+            .onPreferenceChange(PaletteRowHeightPreferenceKey.self) { heights in
+                if measuredRowHeights != heights { measuredRowHeights = heights }
+            }
         }
     }
 
@@ -305,6 +309,14 @@ public struct CommandPaletteView<RowContent: View>: View {
             .accessibilityElement(children: .combine)
             .accessibilityAddTraits(.isButton)
             .accessibilityAddTraits(index == selectedIndex ? .isSelected : [])
+            .background {
+                GeometryReader { geometry in
+                    Color.clear.preference(
+                        key: PaletteRowHeightPreferenceKey.self,
+                        value: [result.id: geometry.size.height]
+                    )
+                }
+            }
     }
 
     private func scrollSelection(_ new: Int, proxy: ScrollViewProxy) {
@@ -331,11 +343,13 @@ public struct CommandPaletteView<RowContent: View>: View {
         selectedIndex = new
     }
 
-    // How many rows Page Up/Down jumps: roughly a viewport of rows, keeping one row of
-    // overlap for context. Estimated from the surface height and a nominal row height
-    // (the list isn't measured), and never less than one row. Internal for testing.
+    // How many rows Page Up/Down jumps: roughly a viewport of the currently realized custom
+    // rows, keeping one row of overlap for context. Internal for testing.
     var pageStep: Int {
-        pageNavigationStep(for: height)
+        pageNavigationStep(
+            for: height,
+            rowHeight: representativePaletteRowHeight(Array(measuredRowHeights.values))
+        )
     }
 
     private func activateSelection() {
@@ -353,28 +367,4 @@ public struct CommandPaletteView<RowContent: View>: View {
             result.action()
         }
     }
-}
-
-func pageNavigationStep(for height: CGFloat) -> Int {
-    let approximateRowHeight: CGFloat = 36
-    let searchFieldHeight: CGFloat = 56
-    guard height.isFinite, height > 0 else { return 1 }
-
-    let listHeight = max(height - searchFieldHeight, approximateRowHeight)
-    let rowsPerPage = (listHeight / approximateRowHeight).rounded(.down)
-    guard rowsPerPage < CGFloat(Int.max) else { return Int.max }
-
-    return max(Int(rowsPerPage) - 1, 1)
-}
-
-func clampedSelectionIndex(current: Int, delta: Int, count: Int) -> Int {
-    guard count > 0 else { return 0 }
-
-    let upperBound = count - 1
-    let current = min(max(current, 0), upperBound)
-    if delta > 0 {
-        let remaining = upperBound - current
-        return delta >= remaining ? upperBound : current + delta
-    }
-    return delta <= -current ? 0 : current + delta
 }
