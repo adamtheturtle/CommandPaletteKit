@@ -29,6 +29,9 @@
                     to: PaletteKeyEvent(
                         keyCode: event.keyCode,
                         isControlHeld: event.modifierFlags.contains(.control),
+                        hasArrowNavigationModifiers: !event.modifierFlags.isDisjoint(
+                            with: [.command, .option, .shift, .control]
+                        ),
                         charactersIgnoringModifiers: event.charactersIgnoringModifiers,
                         // A local monitor sees the whole application's key events, so an
                         // event from any other window - a second document window alongside a
