@@ -42,12 +42,13 @@ public struct CommandPaletteView<RowContent: View>: View {
     @Environment(\.dismiss) private var dismiss
     @Environment(\.commandPaletteExtendedKeyboardNavigation) private var extendedNavigation
 
-    @State private var query = ""
-    @State private var candidates: [PaletteResult] = []
+    @State var query = ""
+    @State var candidates: [PaletteResult] = []
     @State private var selectedIndex = 0
     @State private var isLoading = false
     @State var candidateLoadGeneration = CandidateLoadGeneration()
     @State private var measuredRowHeights: [String: CGFloat] = [:]
+    @State var resultSnapshot = PaletteResultSnapshot()
     @FocusState private var queryFocused: Bool
     // Keeps a scroll-induced hover from stealing the selection back from the keyboard.
     // `@State`, not a local: the hover handler and `move(by:)` are different callbacks and
@@ -85,8 +86,8 @@ public struct CommandPaletteView<RowContent: View>: View {
     private let emptyMessage: LocalizedStringKey
     private let noMatchesMessage: LocalizedStringKey
     private let loadingMessage: LocalizedStringKey
-    private let resultLimit: Int
-    private let scorer: PaletteScorer
+    let resultLimit: Int
+    let scorer: PaletteScorer
     private let width: CGFloat
     private let height: CGFloat
     private let onActivate: (@MainActor (PaletteResult) -> Void)?
@@ -122,7 +123,7 @@ public struct CommandPaletteView<RowContent: View>: View {
     }
 
     private var results: [PaletteResult] {
-        topPaletteResults(candidates: candidates, query: query, limit: resultLimit, scorer: scorer)
+        resultSnapshot.results
     }
 
     public var body: some View {
@@ -146,7 +147,9 @@ public struct CommandPaletteView<RowContent: View>: View {
             // with no loading flash. The async source is loaded in `.task` below.
             if case .sync(let provider) = source {
                 invalidateCandidateLoads()
-                candidates = provider()
+                let loadedCandidates = provider()
+                candidates = loadedCandidates
+                refreshResultSnapshot(candidates: loadedCandidates)
                 isLoading = false
             }
             queryFocused = true
@@ -166,6 +169,7 @@ public struct CommandPaletteView<RowContent: View>: View {
             ) else { return }
 
             candidates = loadedCandidates
+            refreshResultSnapshot(candidates: loadedCandidates)
             isLoading = false
         }
         .onDisappear {
@@ -219,7 +223,10 @@ public struct CommandPaletteView<RowContent: View>: View {
                 .font(.title3)
                 .focused($queryFocused)
                 .onSubmit(activateSelection)
-                .onChange(of: query) { _, _ in selectedIndex = 0 }
+                .onChange(of: query) { _, _ in
+                    selectedIndex = 0
+                    refreshResultSnapshot()
+                }
         }
         .padding(.horizontal, 16)
         .padding(.vertical, 14)
@@ -353,10 +360,9 @@ public struct CommandPaletteView<RowContent: View>: View {
     }
 
     private func activateSelection() {
-        let current = results
-        guard current.indices.contains(selectedIndex) else { return }
+        guard let selectedResult = resultSnapshot.result(at: selectedIndex) else { return }
 
-        activate(current[selectedIndex])
+        activate(selectedResult)
     }
 
     private func activate(_ result: PaletteResult) {

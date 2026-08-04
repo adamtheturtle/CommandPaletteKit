@@ -92,3 +92,21 @@ func topPaletteResults(
     }
     return heap.sortedResults()
 }
+
+/// One materialized ranking shared by rendering, navigation, scrolling, and activation.
+struct PaletteResultSnapshot {
+    private(set) var results: [PaletteResult] = []
+
+    mutating func refresh(
+        candidates: [PaletteResult],
+        query: String,
+        limit: Int,
+        scorer: PaletteScorer
+    ) {
+        results = topPaletteResults(candidates: candidates, query: query, limit: limit, scorer: scorer)
+    }
+
+    func result(at index: Int) -> PaletteResult? {
+        results.indices.contains(index) ? results[index] : nil
+    }
+}

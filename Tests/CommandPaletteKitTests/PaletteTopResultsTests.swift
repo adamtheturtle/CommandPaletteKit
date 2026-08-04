@@ -60,3 +60,44 @@ struct PaletteTopResultsTests {
         #expect(results.isEmpty)
     }
 }
+
+private final class ChangingScorer: @unchecked Sendable {
+    private var invocation = 0
+    private let lock = NSLock()
+
+    func score(_: String, _ text: String) -> Int? {
+        lock.lock()
+        defer { lock.unlock() }
+
+        let rankingPass = invocation / 2
+        invocation += 1
+        return rankingPass.isMultiple(of: 2) == (text == "Alpha") ? 10 : 1
+    }
+
+    var invocationCount: Int {
+        lock.lock()
+        defer { lock.unlock() }
+        return invocation
+    }
+}
+
+@Suite("Materialized palette result snapshot")
+struct PaletteResultSnapshotTests {
+    @Test("Display and activation share one stateful-scorer ranking")
+    func statefulScorerIsEvaluatedOncePerSnapshot() {
+        let candidates = [
+            PaletteResult(id: "alpha", title: "Alpha", systemImage: "a.circle") {},
+            PaletteResult(id: "beta", title: "Beta", systemImage: "b.circle") {}
+        ]
+        let scorer = ChangingScorer()
+        var snapshot = PaletteResultSnapshot()
+
+        snapshot.refresh(candidates: candidates, query: "", limit: 2, scorer: scorer.score)
+        let displayedID = snapshot.results.first?.id
+        let activatedID = snapshot.result(at: 0)?.id
+
+        #expect(displayedID == "alpha")
+        #expect(activatedID == displayedID)
+        #expect(scorer.invocationCount == candidates.count)
+    }
+}
