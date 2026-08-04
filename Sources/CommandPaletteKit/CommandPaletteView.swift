@@ -120,22 +120,7 @@ public struct CommandPaletteView<RowContent: View>: View {
     }
 
     private var results: [PaletteResult] {
-        let searching = !normalizedPaletteQuery(query).isEmpty
-        let scored = deduplicatedPaletteResults(candidates).compactMap { result -> (PaletteResult, Int)? in
-            guard searching || !result.showsOnlyWhenSearching else { return nil }
-            guard let score = scorer(query, result.searchText) else { return nil }
-
-            return (result, score)
-        }
-        // Stable order: by score, then keep the original (caller-grouped) order for ties so
-        // an empty query reads top-to-bottom in the order the candidates were supplied.
-        return scored
-            .enumerated()
-            .sorted { lhs, rhs in
-                lhs.element.1 != rhs.element.1 ? lhs.element.1 > rhs.element.1 : lhs.offset < rhs.offset
-            }
-            .prefix(resultLimit)
-            .map(\.element.0)
+        topPaletteResults(candidates: candidates, query: query, limit: resultLimit, scorer: scorer)
     }
 
     public var body: some View {
