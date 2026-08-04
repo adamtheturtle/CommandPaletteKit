@@ -45,4 +45,16 @@ struct CommandPaletteViewAPITests {
             row: { result, isSelected in Text(result.title).bold(isSelected) }
         )
     }
+
+    @Test("Result limits are normalized before reaching Collection.prefix")
+    func resultLimitNormalization() {
+        #expect(normalizedResultLimit(-1) == 0)
+        #expect(normalizedResultLimit(Int.min) == 0)
+        #expect(normalizedResultLimit(0) == 0)
+        #expect(normalizedResultLimit(Int.max) == Int.max)
+
+        let values = [1, 2, 3]
+        #expect(Array(values.prefix(normalizedResultLimit(-1))).isEmpty)
+        #expect(Array(values.prefix(normalizedResultLimit(Int.max))) == values)
+    }
 }
