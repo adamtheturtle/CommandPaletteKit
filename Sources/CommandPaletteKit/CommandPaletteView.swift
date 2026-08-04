@@ -304,7 +304,7 @@ public struct CommandPaletteView<RowContent: View>: View {
         let count = results.count
         guard count > 0 else { return }
 
-        let new = min(max(selectedIndex + delta, 0), count - 1)
+        let new = clampedSelectionIndex(current: selectedIndex, delta: delta, count: count)
         guard new != selectedIndex else { return }
 
         // Hold hover off for a beat: this selection change is about to scroll the list, and
@@ -317,11 +317,7 @@ public struct CommandPaletteView<RowContent: View>: View {
     // overlap for context. Estimated from the surface height and a nominal row height
     // (the list isn't measured), and never less than one row. Internal for testing.
     var pageStep: Int {
-        let approximateRowHeight: CGFloat = 36
-        let searchFieldHeight: CGFloat = 56
-        let listHeight = max(height - searchFieldHeight, approximateRowHeight)
-        let rowsPerPage = Int((listHeight / approximateRowHeight).rounded(.down))
-        return max(rowsPerPage - 1, 1)
+        pageNavigationStep(for: height)
     }
 
     private func activateSelection() {
@@ -346,4 +342,28 @@ public struct CommandPaletteView<RowContent: View>: View {
 /// which requires a nonnegative length.
 func normalizedResultLimit(_ resultLimit: Int) -> Int {
     max(0, resultLimit)
+}
+
+func pageNavigationStep(for height: CGFloat) -> Int {
+    let approximateRowHeight: CGFloat = 36
+    let searchFieldHeight: CGFloat = 56
+    guard height.isFinite, height > 0 else { return 1 }
+
+    let listHeight = max(height - searchFieldHeight, approximateRowHeight)
+    let rowsPerPage = (listHeight / approximateRowHeight).rounded(.down)
+    guard rowsPerPage < CGFloat(Int.max) else { return Int.max }
+
+    return max(Int(rowsPerPage) - 1, 1)
+}
+
+func clampedSelectionIndex(current: Int, delta: Int, count: Int) -> Int {
+    guard count > 0 else { return 0 }
+
+    let upperBound = count - 1
+    let current = min(max(current, 0), upperBound)
+    if delta > 0 {
+        let remaining = upperBound - current
+        return delta >= remaining ? upperBound : current + delta
+    }
+    return delta <= -current ? 0 : current + delta
 }
