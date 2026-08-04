@@ -58,6 +58,20 @@ struct CommandPaletteViewAPITests {
         #expect(Array(values.prefix(normalizedResultLimit(Int.max))) == values)
     }
 
+    @Test("Palette geometry is finite, positive, and bounded before layout")
+    func paletteGeometryNormalization() {
+        let fallback: CGFloat = 620
+        for invalid in [CGFloat.nan, .infinity, -.infinity, -1, 0] {
+            #expect(normalizedPaletteDimension(invalid, fallback: fallback) == fallback)
+        }
+
+        #expect(normalizedPaletteDimension(320, fallback: fallback) == 320)
+        #expect(
+            normalizedPaletteDimension(.greatestFiniteMagnitude, fallback: fallback)
+                == maximumPaletteDimension
+        )
+    }
+
     @Test("The first result for a duplicate ID is rendered and activated")
     func duplicateResultIDs() {
         var activatedTitle: String?

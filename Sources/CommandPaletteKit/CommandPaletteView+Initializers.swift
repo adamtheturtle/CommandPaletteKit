@@ -23,8 +23,10 @@ extension CommandPaletteView {
     ///   - resultLimit: Maximum rows rendered; the highest-scoring win. Zero or negative
     ///     values render no rows; pass `.max` for no limit.
     ///   - scorer: Match/scoring function. Defaults to ``paletteFuzzyScore(_:_:)``.
-    ///   - width: Surface width.
-    ///   - height: Surface height.
+    ///   - width: Surface width. Invalid values use the 620-point default; oversized values
+    ///     are capped at 10,000 points.
+    ///   - height: Surface height. Invalid values use the 460-point default; oversized values
+    ///     are capped at 10,000 points.
     ///   - onActivate: Called instead of `result.action` when a row is activated, if
     ///     provided - lets the host route activation itself. When `nil`, the palette
     ///     dismisses and calls `result.action`.
@@ -72,8 +74,10 @@ extension CommandPaletteView {
     ///   - resultLimit: Maximum rows rendered; the highest-scoring win. Zero or negative
     ///     values render no rows; pass `.max` for no limit.
     ///   - scorer: Match/scoring function. Defaults to ``paletteFuzzyScore(_:_:)``.
-    ///   - width: Surface width.
-    ///   - height: Surface height.
+    ///   - width: Surface width. Invalid values use the 620-point default; oversized values
+    ///     are capped at 10,000 points.
+    ///   - height: Surface height. Invalid values use the 460-point default; oversized values
+    ///     are capped at 10,000 points.
     ///   - onActivate: Called instead of `result.action` when a row is activated, if
     ///     provided - lets the host route activation itself. When `nil`, the palette
     ///     dismisses and calls `result.action`.
@@ -123,8 +127,10 @@ extension CommandPaletteView where RowContent == PaletteRow {
     ///   - resultLimit: Maximum rows rendered; the highest-scoring win. Zero or negative
     ///     values render no rows; pass `.max` for no limit.
     ///   - scorer: Match/scoring function. Defaults to ``paletteFuzzyScore(_:_:)``.
-    ///   - width: Surface width.
-    ///   - height: Surface height.
+    ///   - width: Surface width. Invalid values use the 620-point default; oversized values
+    ///     are capped at 10,000 points.
+    ///   - height: Surface height. Invalid values use the 460-point default; oversized values
+    ///     are capped at 10,000 points.
     ///   - onActivate: Called instead of `result.action` when a row is activated, if
     ///     provided - lets the host route activation itself. When `nil`, the palette
     ///     dismisses and calls `result.action`.
@@ -165,8 +171,10 @@ extension CommandPaletteView where RowContent == PaletteRow {
     ///   - resultLimit: Maximum rows rendered; the highest-scoring win. Zero or negative
     ///     values render no rows; pass `.max` for no limit.
     ///   - scorer: Match/scoring function. Defaults to ``paletteFuzzyScore(_:_:)``.
-    ///   - width: Surface width.
-    ///   - height: Surface height.
+    ///   - width: Surface width. Invalid values use the 620-point default; oversized values
+    ///     are capped at 10,000 points.
+    ///   - height: Surface height. Invalid values use the 460-point default; oversized values
+    ///     are capped at 10,000 points.
     ///   - onActivate: Called instead of `result.action` when a row is activated, if
     ///     provided - lets the host route activation itself. When `nil`, the palette
     ///     dismisses and calls `result.action`.
