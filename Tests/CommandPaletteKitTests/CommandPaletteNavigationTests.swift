@@ -37,4 +37,20 @@ struct CommandPaletteNavigationTests {
         #expect(step >= 5)
         #expect(step <= 20)
     }
+
+    @Test("Invalid and oversized heights never trap during page-step calculation")
+    func pathologicalHeightsAreSafe() {
+        for height in [CGFloat.nan, .infinity, -.infinity, -1, 0] {
+            #expect(pageNavigationStep(for: height) == 1)
+        }
+        #expect(pageNavigationStep(for: .greatestFiniteMagnitude) == Int.max)
+    }
+
+    @Test("Extreme page deltas clamp without overflowing selection arithmetic")
+    func extremeDeltasClamp() {
+        #expect(clampedSelectionIndex(current: 5, delta: Int.max, count: 10) == 9)
+        #expect(clampedSelectionIndex(current: 5, delta: Int.min, count: 10) == 0)
+        #expect(clampedSelectionIndex(current: 5, delta: 2, count: 10) == 7)
+        #expect(clampedSelectionIndex(current: 5, delta: -2, count: 10) == 3)
+    }
 }
