@@ -16,6 +16,16 @@
 #endif
 import SwiftUI
 
+/// Keeps result identity unambiguous for SwiftUI rows and scroll targets.
+///
+/// The first candidate supplied for an ID wins. Doing this before filtering and scoring
+/// makes the result deterministic across queries and prevents a duplicate from silently
+/// replacing the action associated with an existing row.
+func deduplicatedPaletteResults(_ results: [PaletteResult]) -> [PaletteResult] {
+    var seenIDs = Set<String>()
+    return results.filter { seenIDs.insert($0.id).inserted }
+}
+
 /// The command palette surface: a search field above a scrolling, keyboard-navigable
 /// result list. Owns the query and the selection; the candidate list is built on appear
 /// from the supplied provider and re-scored on every keystroke.
@@ -102,7 +112,7 @@ public struct CommandPaletteView<RowContent: View>: View {
 
     private var results: [PaletteResult] {
         let searching = !normalizedPaletteQuery(query).isEmpty
-        let scored = candidates.compactMap { result -> (PaletteResult, Int)? in
+        let scored = deduplicatedPaletteResults(candidates).compactMap { result -> (PaletteResult, Int)? in
             guard searching || !result.showsOnlyWhenSearching else { return nil }
             guard let score = scorer(query, result.searchText) else { return nil }
 
