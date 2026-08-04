@@ -16,6 +16,15 @@
 #endif
 import SwiftUI
 
+let maximumPaletteDimension: CGFloat = 10_000
+
+/// Returns geometry that is safe to pass to SwiftUI's fixed-size frame API.
+func normalizedPaletteDimension(_ dimension: CGFloat, fallback: CGFloat) -> CGFloat {
+    guard dimension.isFinite, dimension > 0 else { return fallback }
+
+    return min(dimension, maximumPaletteDimension)
+}
+
 /// Keeps result identity unambiguous for SwiftUI rows and scroll targets.
 ///
 /// The first candidate supplied for an ID wins. Doing this before filtering and scoring
@@ -104,8 +113,8 @@ public struct CommandPaletteView<RowContent: View>: View {
         self.loadingMessage = loadingMessage
         self.resultLimit = normalizedResultLimit(resultLimit)
         self.scorer = scorer
-        self.width = width
-        self.height = height
+        self.width = normalizedPaletteDimension(width, fallback: 620)
+        self.height = normalizedPaletteDimension(height, fallback: 460)
         self.onActivate = onActivate
         self.row = row
     }
