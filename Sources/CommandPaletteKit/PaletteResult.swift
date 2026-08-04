@@ -9,7 +9,8 @@
 
 import SwiftUI
 
-/// A single selectable entry in the palette.
+/// A single selectable entry in the palette. When candidates contain duplicate IDs, the
+/// first candidate for each ID is rendered and later duplicates are ignored.
 public struct PaletteResult: Identifiable {
     /// Stable, unique identity. Used for `ForEach` identity and as the scroll target, so
     /// it must stay constant as the filtered list re-orders under the selection.

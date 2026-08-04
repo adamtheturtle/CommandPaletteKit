@@ -57,4 +57,25 @@ struct CommandPaletteViewAPITests {
         #expect(Array(values.prefix(normalizedResultLimit(-1))).isEmpty)
         #expect(Array(values.prefix(normalizedResultLimit(Int.max))) == values)
     }
+
+    @Test("The first result for a duplicate ID is rendered and activated")
+    func duplicateResultIDs() {
+        var activatedTitle: String?
+        let candidates = [
+            PaletteResult(id: "duplicate", title: "First", systemImage: "1.circle") {
+                activatedTitle = "First"
+            },
+            PaletteResult(id: "unique", title: "Unique", systemImage: "u.circle") {},
+            PaletteResult(id: "duplicate", title: "Second", systemImage: "2.circle") {
+                activatedTitle = "Second"
+            }
+        ]
+
+        let results = deduplicatedPaletteResults(candidates)
+        #expect(results.map(\.id) == ["duplicate", "unique"])
+        #expect(results.map(\.title) == ["First", "Unique"])
+
+        results[0].action()
+        #expect(activatedTitle == "First")
+    }
 }
