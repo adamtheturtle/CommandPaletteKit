@@ -20,7 +20,8 @@ extension CommandPaletteView {
     ///   - placeholder: Prompt shown in the empty search field.
     ///   - emptyMessage: Shown when the query is empty and nothing is listed yet.
     ///   - noMatchesMessage: Shown when a non-empty query matches nothing.
-    ///   - resultLimit: Maximum rows rendered; the highest-scoring win. Pass `.max` for no limit.
+    ///   - resultLimit: Maximum rows rendered; the highest-scoring win. Zero or negative
+    ///     values render no rows; pass `.max` for no limit.
     ///   - scorer: Match/scoring function. Defaults to ``paletteFuzzyScore(_:_:)``.
     ///   - width: Surface width.
     ///   - height: Surface height.
@@ -68,7 +69,8 @@ extension CommandPaletteView {
     ///   - emptyMessage: Shown when the query is empty and nothing is listed yet.
     ///   - noMatchesMessage: Shown when a non-empty query matches nothing.
     ///   - loadingMessage: Label shown beside the spinner while the provider resolves.
-    ///   - resultLimit: Maximum rows rendered; the highest-scoring win. Pass `.max` for no limit.
+    ///   - resultLimit: Maximum rows rendered; the highest-scoring win. Zero or negative
+    ///     values render no rows; pass `.max` for no limit.
     ///   - scorer: Match/scoring function. Defaults to ``paletteFuzzyScore(_:_:)``.
     ///   - width: Surface width.
     ///   - height: Surface height.
@@ -118,7 +120,8 @@ extension CommandPaletteView where RowContent == PaletteRow {
     ///   - placeholder: Prompt shown in the empty search field.
     ///   - emptyMessage: Shown when the query is empty and nothing is listed yet.
     ///   - noMatchesMessage: Shown when a non-empty query matches nothing.
-    ///   - resultLimit: Maximum rows rendered; the highest-scoring win. Pass `.max` for no limit.
+    ///   - resultLimit: Maximum rows rendered; the highest-scoring win. Zero or negative
+    ///     values render no rows; pass `.max` for no limit.
     ///   - scorer: Match/scoring function. Defaults to ``paletteFuzzyScore(_:_:)``.
     ///   - width: Surface width.
     ///   - height: Surface height.
@@ -159,7 +162,8 @@ extension CommandPaletteView where RowContent == PaletteRow {
     ///   - emptyMessage: Shown when the query is empty and nothing is listed yet.
     ///   - noMatchesMessage: Shown when a non-empty query matches nothing.
     ///   - loadingMessage: Label shown beside the spinner while the provider resolves.
-    ///   - resultLimit: Maximum rows rendered; the highest-scoring win. Pass `.max` for no limit.
+    ///   - resultLimit: Maximum rows rendered; the highest-scoring win. Zero or negative
+    ///     values render no rows; pass `.max` for no limit.
     ///   - scorer: Match/scoring function. Defaults to ``paletteFuzzyScore(_:_:)``.
     ///   - width: Surface width.
     ///   - height: Surface height.

@@ -92,7 +92,7 @@ public struct CommandPaletteView<RowContent: View>: View {
         self.emptyMessage = emptyMessage
         self.noMatchesMessage = noMatchesMessage
         self.loadingMessage = loadingMessage
-        self.resultLimit = resultLimit
+        self.resultLimit = normalizedResultLimit(resultLimit)
         self.scorer = scorer
         self.width = width
         self.height = height
@@ -339,4 +339,11 @@ public struct CommandPaletteView<RowContent: View>: View {
             result.action()
         }
     }
+}
+
+/// A non-positive limit deliberately renders no result rows. Keeping normalization at
+/// the designated initializer prevents a negative value reaching `Collection.prefix`,
+/// which requires a nonnegative length.
+func normalizedResultLimit(_ resultLimit: Int) -> Int {
+    max(0, resultLimit)
 }
