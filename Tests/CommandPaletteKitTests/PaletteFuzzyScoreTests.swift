@@ -12,6 +12,10 @@ struct PaletteFuzzyScoreTests {
     func emptyQueryMatchesAll() {
         #expect(paletteFuzzyScore("", "Anything") == 0)
         #expect(paletteFuzzyScore("   ", "Anything") == 0)
+        #expect(paletteFuzzyScore("\r\n", "Anything") == 0)
+        #expect(paletteFuzzyScore(" \n\t\r ", "Anything") == 0)
+        #expect(normalizedPaletteQuery("\r\n").isEmpty)
+        #expect(normalizedPaletteQuery(" \ncommand\r ") == "command")
     }
 
     @Test("No common subsequence is no match")
