@@ -17,7 +17,7 @@ import Foundation
 /// This is the default scorer used by ``CommandPaletteView``; pass your own
 /// ``PaletteScorer`` to the view to add weighting, recency, or pinning.
 public func paletteFuzzyScore(_ query: String, _ text: String) -> Int? {
-    let trimmed = query.trimmingCharacters(in: .whitespaces)
+    let trimmed = normalizedPaletteQuery(query)
     guard !trimmed.isEmpty else { return 0 }
 
     let haystack = text.lowercased()
@@ -56,6 +56,10 @@ public func paletteFuzzyScore(_ query: String, _ text: String) -> Int? {
         if !matched { return nil }
     }
     return score
+}
+
+func normalizedPaletteQuery(_ query: String) -> String {
+    query.trimmingCharacters(in: .whitespacesAndNewlines)
 }
 
 /// A function that scores a `query` against a candidate's search text. Return `nil` to

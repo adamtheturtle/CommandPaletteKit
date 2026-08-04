@@ -101,7 +101,7 @@ public struct CommandPaletteView<RowContent: View>: View {
     }
 
     private var results: [PaletteResult] {
-        let searching = !query.trimmingCharacters(in: .whitespaces).isEmpty
+        let searching = !normalizedPaletteQuery(query).isEmpty
         let scored = candidates.compactMap { result -> (PaletteResult, Int)? in
             guard searching || !result.showsOnlyWhenSearching else { return nil }
             guard let score = scorer(query, result.searchText) else { return nil }
@@ -246,7 +246,7 @@ public struct CommandPaletteView<RowContent: View>: View {
     }
 
     private var emptyResultsMessage: some View {
-        Text(query.trimmingCharacters(in: .whitespaces).isEmpty ? emptyMessage : noMatchesMessage)
+        Text(normalizedPaletteQuery(query).isEmpty ? emptyMessage : noMatchesMessage)
             .foregroundStyle(.secondary)
             .frame(maxWidth: .infinity, alignment: .center)
             .padding(.top, 40)
