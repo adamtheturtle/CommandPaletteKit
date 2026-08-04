@@ -46,6 +46,7 @@ public struct CommandPaletteView<RowContent: View>: View {
     @State private var candidates: [PaletteResult] = []
     @State private var selectedIndex = 0
     @State private var isLoading = false
+    @State var candidateLoadGeneration = CandidateLoadGeneration()
     @FocusState private var queryFocused: Bool
     // Keeps a scroll-induced hover from stealing the selection back from the keyboard.
     // `@State`, not a local: the hover handler and `move(by:)` are different callbacks and
@@ -143,7 +144,9 @@ public struct CommandPaletteView<RowContent: View>: View {
             // Build a synchronous list up front so the zero-config case shows instantly
             // with no loading flash. The async source is loaded in `.task` below.
             if case .sync(let provider) = source {
+                invalidateCandidateLoads()
                 candidates = provider()
+                isLoading = false
             }
             queryFocused = true
             #if os(macOS)
@@ -153,13 +156,24 @@ public struct CommandPaletteView<RowContent: View>: View {
         .task {
             guard case .async(let provider) = source else { return }
 
+            let generation = beginCandidateLoad()
             isLoading = true
-            candidates = await provider()
+            let loadedCandidates = await provider()
+            guard candidateLoadGeneration.accepts(
+                generation,
+                isCancelled: Task.isCancelled
+            ) else { return }
+
+            candidates = loadedCandidates
             isLoading = false
         }
-        #if os(macOS)
-        .onDisappear(perform: removeArrowKeyMonitor)
-        #endif
+        .onDisappear {
+            invalidateCandidateLoads()
+            isLoading = false
+            #if os(macOS)
+                removeArrowKeyMonitor()
+            #endif
+        }
         #if os(iOS)
         // iPad hardware-keyboard navigation. The search field is the focused descendant, so
         // these ancestor handlers see its key events first and consume the arrows (returning
@@ -339,13 +353,6 @@ public struct CommandPaletteView<RowContent: View>: View {
             result.action()
         }
     }
-}
-
-/// A non-positive limit deliberately renders no result rows. Keeping normalization at
-/// the designated initializer prevents a negative value reaching `Collection.prefix`,
-/// which requires a nonnegative length.
-func normalizedResultLimit(_ resultLimit: Int) -> Int {
-    max(0, resultLimit)
 }
 
 func pageNavigationStep(for height: CGFloat) -> Int {

@@ -115,6 +115,13 @@ extension CommandPaletteView {
     }
 }
 
+/// A non-positive limit deliberately renders no result rows. Keeping normalization at
+/// the designated initializer prevents a negative value reaching `Collection.prefix`,
+/// which requires a nonnegative length.
+func normalizedResultLimit(_ resultLimit: Int) -> Int {
+    max(0, resultLimit)
+}
+
 extension CommandPaletteView where RowContent == PaletteRow {
     /// Creates a palette using the built-in ``PaletteRow`` for each cell. This is the
     /// zero-configuration call site; supply a `row` builder on the designated initializer
