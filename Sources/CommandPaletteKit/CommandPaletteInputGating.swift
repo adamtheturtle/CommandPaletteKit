@@ -66,6 +66,8 @@ struct HoverSelectionGate: Equatable {
         /// AppKit virtual key code. 125 is the down arrow, 126 up, 116 Page Up, 121 Page Down.
         var keyCode: UInt16
         var isControlHeld = false
+        /// Whether an arrow key carries a text-navigation modifier such as Option or Command.
+        var hasArrowNavigationModifiers = false
         var charactersIgnoringModifiers: String?
         /// Whether the event was posted to the window the palette is presented in.
         ///
@@ -98,6 +100,14 @@ struct HoverSelectionGate: Equatable {
         // Another window's key event. Leave it entirely alone - including the arrows, which
         // that window's own list or table almost certainly wants.
         guard event.isInPaletteWindow else { return .passThrough }
+
+        // Modified arrows are text-navigation shortcuts owned by the focused field (for
+        // example, Option-Left/Right and Command-Up/Down). Only bare arrows belong to the
+        // palette; the explicit Ctrl-N/Ctrl-P shortcuts are handled separately below.
+        let isArrow = event.keyCode == 125 || event.keyCode == 126
+        if isArrow, event.hasArrowNavigationModifiers {
+            return .passThrough
+        }
 
         switch event.keyCode {
         case 125: return .move(rows: 1)

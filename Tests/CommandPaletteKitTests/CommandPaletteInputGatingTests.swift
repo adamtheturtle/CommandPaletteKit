@@ -93,6 +93,19 @@ struct HoverSelectionGateTests {
             #expect(response(arrow(126, inPaletteWindow: true)) == .move(rows: -1))
         }
 
+        @Test("Modified arrows remain available to the focused text field")
+        func modifiedArrowsPassThrough() {
+            for keyCode: UInt16 in [125, 126] {
+                let modifiedArrow = PaletteKeyEvent(
+                    keyCode: keyCode,
+                    hasArrowNavigationModifiers: true,
+                    isInPaletteWindow: true
+                )
+                #expect(response(modifiedArrow) == .passThrough)
+                #expect(response(modifiedArrow, extendedNavigation: true) == .passThrough)
+            }
+        }
+
         @Test("Another window's arrows are left entirely alone")
         func arrowsFromAnotherWindowPassThrough() {
             // Issue #9: a local monitor sees the whole application's key events. A palette
