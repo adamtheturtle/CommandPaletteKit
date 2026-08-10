@@ -43,7 +43,7 @@ jobs:
           <link rel="canonical" href="/CommandPaletteKit/documentation/commandpalettekit">
           <title>CommandPaletteKit</title>
           HTML
-      - uses: actions/upload-pages-artifact@v3
+      - uses: actions/upload-pages-artifact@v5
         with:
           path: ./docs-site
 
