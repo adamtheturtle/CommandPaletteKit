@@ -1,0 +1,32 @@
+name: Bug report
+description: Report incorrect palette behaviour, crashes, or platform regressions.
+title: "Bug: "
+labels: [bug]
+body:
+  - type: textarea
+    attributes:
+      label: Reproduction
+      description: Minimal SwiftUI host, package version, and the steps that fail.
+    validations:
+      required: true
+  - type: input
+    attributes:
+      label: CommandPaletteKit version
+      placeholder: 0.2.2
+    validations:
+      required: true
+  - type: dropdown
+    attributes:
+      label: Platform
+      options:
+        - macOS
+        - iPadOS / iOS
+        - Both
+        - Unsure
+    validations:
+      required: true
+  - type: textarea
+    attributes:
+      label: Expected and actual behavior
+    validations:
+      required: true

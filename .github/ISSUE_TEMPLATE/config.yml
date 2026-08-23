@@ -1,0 +1,5 @@
+blank_issues_enabled: true
+contact_links:
+  - name: Documentation
+    url: https://swiftpackageindex.com/adamtheturtle/CommandPaletteKit/documentation/commandpalettekit
+    about: Hosted DocC for CommandPaletteKit.
