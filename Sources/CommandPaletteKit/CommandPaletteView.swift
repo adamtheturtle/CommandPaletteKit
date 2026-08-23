@@ -260,6 +260,11 @@ public struct CommandPaletteView<RowContent: View>: View {
         // focus and `selectedIndex` stay aligned; move commands also nudge the selection
         // when focus sits on the search field.
         .onMoveCommand { direction in
+            // Only nudge selection from the search field. When a result row already has
+            // focus, the focus engine moves between rows and `onChange(of: focusedResultID)`
+            // updates `selectedIndex`; calling `move(by:)` here would double-step.
+            guard focusedResultID == nil else { return }
+
             switch direction {
             case .up: move(by: -1)
             case .down: move(by: 1)
