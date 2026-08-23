@@ -47,6 +47,7 @@ public struct CommandPaletteView<RowContent: View>: View {
     @Environment(\.commandPaletteShowsKeyBindingFooter) var showsKeyBindingFooter
     @Environment(\.commandPaletteGroupsResultsByCategory) var groupsByCategory
     @Environment(\.commandPalettePinnedIDs) var pinnedIDs
+    @Environment(\.commandPaletteRecentIDs) var recentIDs
 
     @State var query = ""
     @State var candidates: [PaletteResult] = []
@@ -182,6 +183,10 @@ public struct CommandPaletteView<RowContent: View>: View {
             extendedNavigationEnabled = enabled
         }
         .onChange(of: pinnedIDs) { _, _ in
+            refreshResultSnapshot()
+            selectedIndex = min(selectedIndex, max(results.count - 1, 0))
+        }
+        .onChange(of: recentIDs) { _, _ in
             refreshResultSnapshot()
             selectedIndex = min(selectedIndex, max(results.count - 1, 0))
         }
