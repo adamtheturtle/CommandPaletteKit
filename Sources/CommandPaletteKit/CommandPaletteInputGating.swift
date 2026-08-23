@@ -54,6 +54,8 @@ struct HoverSelectionGate: Equatable {
         case passThrough
         /// Move the selection by this many rows and consume the event.
         case move(rows: Int)
+        /// Tab-complete the search query from visible results and consume the event.
+        case tabComplete
     }
 
     /// The fields of an `NSEvent` the palette's decision actually depends on.
@@ -64,7 +66,7 @@ struct HoverSelectionGate: Equatable {
     /// convincingly.
     struct PaletteKeyEvent: Equatable {
         /// AppKit virtual key code. 125 is the down arrow, 126 up, 116 Page Up, 121 Page Down,
-        /// 115 Home, 119 End.
+        /// 115 Home, 119 End, 48 Tab.
         var keyCode: UInt16
         var isControlHeld = false
         /// Whether an arrow key carries a text-navigation modifier such as Option or Command.
@@ -113,6 +115,7 @@ struct HoverSelectionGate: Equatable {
         switch event.keyCode {
         case 125: return .move(rows: 1)
         case 126: return .move(rows: -1)
+        case 48: return .tabComplete
         default: break
         }
 

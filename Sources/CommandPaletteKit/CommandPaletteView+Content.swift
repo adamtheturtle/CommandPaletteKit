@@ -25,6 +25,12 @@ extension CommandPaletteView {
                     selectedIndex = 0
                     refreshResultSnapshot()
                 }
+                #if !os(tvOS)
+                .onKeyPress(.tab) {
+                    applyTabCompletion()
+                    return .handled
+                }
+                #endif
                 .accessibilityHint(Text(
                     "Type to filter commands. Use the arrow keys to move the selection, then press Return to activate."
                 ))
@@ -36,6 +42,22 @@ extension CommandPaletteView {
         #if os(macOS)
         .onExitCommand { dismiss() }
         #endif
+    }
+
+    /// Completes the query from the selected title or the shared prefix of visible titles.
+    @discardableResult
+    func applyTabCompletion() -> Bool {
+        let completed = paletteTabCompletion(
+            query: query,
+            visibleTitles: results.map(\.title),
+            selectedTitle: resultSnapshot.result(at: selectedIndex)?.title
+        )
+        guard let completed else { return false }
+
+        query = completed
+        selectedIndex = 0
+        refreshResultSnapshot()
+        return true
     }
 
     var resultsList: some View {

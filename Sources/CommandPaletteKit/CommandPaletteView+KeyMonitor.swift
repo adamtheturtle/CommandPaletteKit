@@ -44,6 +44,9 @@
                 switch response {
                 case .passThrough: return event
                 case .move(let delta): move(by: delta); return nil
+                case .tabComplete:
+                    applyTabCompletion()
+                    return nil
                 }
             }
         }

@@ -93,6 +93,12 @@ struct HoverSelectionGateTests {
             #expect(response(arrow(126, inPaletteWindow: true)) == .move(rows: -1))
         }
 
+        @Test("Tab completes the query in the palette's own window")
+        func tabCompletesQuery() {
+            #expect(response(arrow(48, inPaletteWindow: true)) == .tabComplete)
+            #expect(response(arrow(48, inPaletteWindow: false)) == .passThrough)
+        }
+
         @Test("Modified arrows remain available to the focused text field")
         func modifiedArrowsPassThrough() {
             for keyCode: UInt16 in [125, 126] {
