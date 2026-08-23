@@ -25,6 +25,10 @@ public func paletteFuzzyScore(_ query: String, _ text: String) -> Int? {
 
     let haystack = foldForPaletteSearch(text)
     let needle = foldForPaletteSearch(trimmed)
+    // Folding can erase a query that was only combining marks (or other ignorable
+    // characters). Treat that like an empty query so we don't prefix-match everything
+    // and surface ``PaletteResult/showsOnlyWhenSearching`` rows.
+    guard !needle.isEmpty else { return 0 }
 
     if haystack == needle { return 1000 }
     if haystack.hasPrefix(needle) { return 850 }
@@ -65,10 +69,25 @@ func normalizedPaletteQuery(_ query: String) -> String {
     query.trimmingCharacters(in: .whitespacesAndNewlines)
 }
 
+/// Whether the query should count as an active search after trim and diacritic folding.
+///
+/// Combining-mark-only queries trim to non-empty text but fold to empty; treat those as
+/// not searching so ``PaletteResult/showsOnlyWhenSearching`` rows stay hidden.
+func paletteQueryIsSearching(_ query: String) -> Bool {
+    !foldForPaletteSearch(normalizedPaletteQuery(query)).isEmpty
+}
+
 /// NFC-normalizes and folds case and diacritics for palette search comparisons.
+///
+/// Also strips combining marks so a query of only accents (which
+/// ``String/folding(options:locale:)`` leaves intact) becomes empty rather than a
+/// prefix match against every candidate.
 func foldForPaletteSearch(_ string: String) -> String {
     let nfc = string.precomposedStringWithCanonicalMapping
-    return nfc.folding(options: [.caseInsensitive, .diacriticInsensitive], locale: .current)
+    let folded = nfc.folding(options: [.caseInsensitive, .diacriticInsensitive], locale: .current)
+    let mutable = NSMutableString(string: folded)
+    CFStringTransform(mutable, nil, kCFStringTransformStripCombiningMarks, false)
+    return mutable as String
 }
 
 /// A function that scores a `query` against one candidate text field (search text, title,

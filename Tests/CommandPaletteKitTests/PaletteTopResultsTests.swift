@@ -125,6 +125,29 @@ struct PaletteTopResultsTests {
         #expect(categoryHits.map(\.id) == ["cat"])
     }
 
+    @Test("Fold-empty queries do not surface showsOnlyWhenSearching rows")
+    func foldEmptyDoesNotCountAsSearching() {
+        let hidden = PaletteResult(
+            id: "hidden",
+            title: "Hidden",
+            systemImage: "eye.slash",
+            showsOnlyWhenSearching: true
+        ) {}
+        let visible = PaletteResult(
+            id: "visible",
+            title: "Visible",
+            systemImage: "eye"
+        ) {}
+
+        let results = topPaletteResults(
+            candidates: [hidden, visible],
+            query: "\u{0301}",
+            limit: 10,
+            scorer: paletteFuzzyScore
+        )
+        #expect(results.map(\.id) == ["visible"])
+    }
+
     @Test("A scorer nil on every field excludes the candidate")
     func nilOnAllFieldsExcludes() {
         let hidden = PaletteResult(

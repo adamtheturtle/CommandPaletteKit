@@ -84,7 +84,7 @@ public func topPaletteResults(
 ) -> [PaletteResult] {
     guard limit > 0 else { return [] }
 
-    let searching = !normalizedPaletteQuery(query).isEmpty
+    let searching = paletteQueryIsSearching(query)
     var heap = BoundedPaletteResultHeap(limit: limit)
     for (sourceIndex, result) in deduplicatedPaletteResults(candidates).enumerated() {
         guard searching || !result.showsOnlyWhenSearching else { continue }
