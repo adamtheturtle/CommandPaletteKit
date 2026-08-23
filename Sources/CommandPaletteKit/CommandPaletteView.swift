@@ -45,6 +45,7 @@ public struct CommandPaletteView<RowContent: View>: View {
     @Environment(\.commandPaletteExtendedKeyboardNavigation) var extendedNavigation
     @Environment(\.commandPaletteStyle) var style
     @Environment(\.commandPaletteShowsKeyBindingFooter) var showsKeyBindingFooter
+    @Environment(\.commandPaletteGroupsResultsByCategory) var groupsByCategory
 
     @State var query = ""
     @State var candidates: [PaletteResult] = []

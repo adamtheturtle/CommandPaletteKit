@@ -102,9 +102,33 @@ extension CommandPaletteView {
             .padding(.top, 40)
     }
 
+    @ViewBuilder
     var resultRows: some View {
-        ForEach(Array(results.enumerated()), id: \.element.id) { index, result in
-            resultRow(result, index: index)
+        if groupsByCategory {
+            ForEach(groupedPaletteResults(results)) { group in
+                Section {
+                    ForEach(Array(group.results.enumerated()), id: \.element.id) { _, result in
+                        let index = results.firstIndex(where: { $0.id == result.id }) ?? 0
+                        resultRow(result, index: index)
+                    }
+                } header: {
+                    if let category = group.category, !category.isEmpty {
+                        Text(category)
+                            .font(.caption)
+                            .fontWeight(.semibold)
+                            .foregroundStyle(.secondary)
+                            .frame(maxWidth: .infinity, alignment: .leading)
+                            .padding(.horizontal, 8)
+                            .padding(.top, 6)
+                            .padding(.bottom, 2)
+                            .accessibilityAddTraits(.isHeader)
+                    }
+                }
+            }
+        } else {
+            ForEach(Array(results.enumerated()), id: \.element.id) { index, result in
+                resultRow(result, index: index)
+            }
         }
     }
 
