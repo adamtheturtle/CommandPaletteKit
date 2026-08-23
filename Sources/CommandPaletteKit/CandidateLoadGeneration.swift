@@ -33,6 +33,11 @@ struct CandidateLoadGeneration {
         time.timeIntervalSince(lastLoadStartTime) >= Self.minimumLoadInterval
     }
 
+    /// Seconds to wait before another provider may start after the last load began.
+    func delayUntilNextLoadAllowed(at time: Date = Date()) -> TimeInterval {
+        max(0, Self.minimumLoadInterval - time.timeIntervalSince(lastLoadStartTime))
+    }
+
     func accepts(_ token: UInt64, isCancelled: Bool = false) -> Bool {
         !isCancelled && token == generation
     }

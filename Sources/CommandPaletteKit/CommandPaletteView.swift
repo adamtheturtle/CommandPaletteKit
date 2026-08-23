@@ -179,24 +179,30 @@ public struct CommandPaletteView<RowContent: View>: View {
         }
         .task {
             guard case .async(let provider) = source else { return }
-            guard shouldBeginCandidateLoad() else {
-                // Rate-limited re-entry: keep showing any retained results without a
-                // stuck loading spinner.
+
+            while !Task.isCancelled {
+                let delay = candidateLoadGeneration.delayUntilNextLoadAllowed()
+                if delay > 0 {
+                    // Rate-limited re-entry: keep showing any retained results without a
+                    // stuck loading spinner, then retry once the window elapses.
+                    isLoading = false
+                    try? await Task.sleep(for: .seconds(delay))
+                    continue
+                }
+
+                let generation = beginCandidateLoad()
+                isLoading = true
+                let loadedCandidates = await provider()
+                guard candidateLoadGeneration.accepts(
+                    generation,
+                    isCancelled: Task.isCancelled
+                ) else { return }
+
+                candidates = loadedCandidates
+                refreshResultSnapshot(candidates: loadedCandidates)
                 isLoading = false
                 return
             }
-
-            let generation = beginCandidateLoad()
-            isLoading = true
-            let loadedCandidates = await provider()
-            guard candidateLoadGeneration.accepts(
-                generation,
-                isCancelled: Task.isCancelled
-            ) else { return }
-
-            candidates = loadedCandidates
-            refreshResultSnapshot(candidates: loadedCandidates)
-            isLoading = false
         }
         .onDisappear {
             invalidateCandidateLoads()
