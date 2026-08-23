@@ -46,4 +46,17 @@ struct CandidateLoadGenerationTests {
         #expect(generation.shouldStartLoad(at: start.addingTimeInterval(0.01)) == false)
         #expect(generation.shouldStartLoad(at: start.addingTimeInterval(0.06)))
     }
+
+    @Test("Invalidation preserves the rate-limit window")
+    func invalidateKeepsRateLimit() {
+        var generation = CandidateLoadGeneration()
+        let start = Date(timeIntervalSince1970: 0)
+        let token = generation.begin()
+        generation.markLoadStarted(at: start)
+        generation.invalidate()
+
+        #expect(!generation.accepts(token))
+        #expect(generation.shouldStartLoad(at: start.addingTimeInterval(0.01)) == false)
+        #expect(generation.shouldStartLoad(at: start.addingTimeInterval(0.06)))
+    }
 }

@@ -21,7 +21,8 @@ struct CandidateLoadGeneration {
 
     mutating func invalidate() {
         generation &+= 1
-        lastLoadStartTime = .distantPast
+        // Keep `lastLoadStartTime` so a disappear/re-appear inside the minimum interval
+        // still rate-limits a new provider. The generation bump alone rejects stale results.
     }
 
     mutating func markLoadStarted(at time: Date = Date()) {
