@@ -11,7 +11,11 @@ import SwiftUI
 
 /// A single selectable entry in the palette. When candidates contain duplicate IDs, the
 /// first candidate for each ID is rendered and later duplicates are ignored.
-public struct PaletteResult: Identifiable {
+///
+/// ``PaletteResult`` is not `Sendable` because its ``action`` closure is main-actor
+/// isolated and may capture non-Sendable host state. The value-type fields (`id`, `title`,
+/// `subtitle`, and so on) are safe to copy on the main actor when building candidate lists.
+public struct PaletteResult: Identifiable, @unchecked Sendable {
     /// Stable, unique identity. Used for `ForEach` identity and as the scroll target, so
     /// it must stay constant as the filtered list re-orders under the selection.
     public let id: String
