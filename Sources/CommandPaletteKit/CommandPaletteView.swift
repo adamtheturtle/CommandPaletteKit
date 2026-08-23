@@ -41,6 +41,7 @@ func deduplicatedPaletteResults(_ results: [PaletteResult]) -> [PaletteResult] {
 public struct CommandPaletteView<RowContent: View>: View {
     @Environment(\.dismiss) private var dismiss
     @Environment(\.commandPaletteExtendedKeyboardNavigation) private var extendedNavigation
+    @Environment(\.commandPaletteStyle) private var style
 
     @State var query = ""
     @State var candidates: [PaletteResult] = []
@@ -133,6 +134,11 @@ public struct CommandPaletteView<RowContent: View>: View {
             resultsList
         }
         .frame(width: width, height: height)
+        .background {
+            if let material = style.backgroundMaterial {
+                Rectangle().fill(material)
+            }
+        }
         // Read the environment value here, during body evaluation, where it is actually
         // installed - and mirror it into `@State` for the escaping monitor closure to use.
         // `initial: true` seeds it on the first evaluation, so the two never disagree.

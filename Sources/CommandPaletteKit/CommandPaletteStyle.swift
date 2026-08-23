@@ -16,6 +16,8 @@ public struct CommandPaletteStyle: Sendable {
     public var selectionColor: Color
     /// Foreground colour for text and the icon in the selected row.
     public var selectedForeground: Color
+    /// Optional material behind the palette surface. When `nil`, the host background shows through.
+    public var backgroundMaterial: Material?
     /// Corner radius of the selected-row highlight.
     public var rowCornerRadius: CGFloat
     /// Horizontal padding inside each row.
@@ -26,12 +28,14 @@ public struct CommandPaletteStyle: Sendable {
     public init(
         selectionColor: Color = .accentColor,
         selectedForeground: Color = .white,
+        backgroundMaterial: Material? = nil,
         rowCornerRadius: CGFloat = 7,
         rowHorizontalPadding: CGFloat = 10,
         rowVerticalPadding: CGFloat = 7
     ) {
         self.selectionColor = selectionColor
         self.selectedForeground = selectedForeground
+        self.backgroundMaterial = backgroundMaterial
         self.rowCornerRadius = rowCornerRadius
         self.rowHorizontalPadding = rowHorizontalPadding
         self.rowVerticalPadding = rowVerticalPadding
