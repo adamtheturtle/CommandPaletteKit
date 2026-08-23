@@ -44,6 +44,7 @@ public struct CommandPaletteView<RowContent: View>: View {
     @Environment(\.dismiss) var dismiss
     @Environment(\.commandPaletteExtendedKeyboardNavigation) var extendedNavigation
     @Environment(\.commandPaletteStyle) var style
+    @Environment(\.commandPaletteShowsKeyBindingFooter) var showsKeyBindingFooter
 
     @State var query = ""
     @State var candidates: [PaletteResult] = []
@@ -141,6 +142,10 @@ public struct CommandPaletteView<RowContent: View>: View {
             searchField
             Divider()
             resultsList
+            if showsKeyBindingFooter {
+                Divider()
+                CommandPaletteKeyBindingFooter()
+            }
         }
         .frame(width: width, height: height)
         .background {
