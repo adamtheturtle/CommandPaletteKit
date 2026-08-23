@@ -33,3 +33,4 @@ open ./docs-preview/data/documentation/commandpalettekit/index.html
 - <doc:Customization>
 - <doc:KeyboardNavigation>
 - <doc:SplitViewPresentation>
+- <doc:MenuBarExtraPresentation>
