@@ -13,7 +13,8 @@ extension CommandPaletteView {
             query: query,
             limit: resultLimit,
             scorer: scorer,
-            pinnedIDs: pinnedIDs
+            pinnedIDs: pinnedIDs,
+            recentIDs: recentIDs
         )
         resultSnapshot = snapshot
     }

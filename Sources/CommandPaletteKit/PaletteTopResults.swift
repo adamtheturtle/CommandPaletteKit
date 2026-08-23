@@ -79,24 +79,41 @@ struct BoundedPaletteResultHeap {
 ///
 /// When `pinnedIDs` is non-empty, matching pinned results are lifted to the front of the
 /// ranking in pin order while unpinned matches keep their score order afterward.
+///
+/// When `recentIDs` is non-empty and the query is not searching, recent commands are
+/// lifted to the front in recency order. While searching, recent IDs receive a modest
+/// score boost so familiar commands stay near the top among matches.
 public func topPaletteResults(
     candidates: [PaletteResult],
     query: String,
     limit: Int,
     scorer: PaletteScorer,
-    pinnedIDs: [String] = []
+    pinnedIDs: [String] = [],
+    recentIDs: [String] = []
 ) -> [PaletteResult] {
     guard limit > 0 else { return [] }
 
     let searching = paletteQueryIsSearching(query)
+    let recency = Dictionary(
+        uniqueKeysWithValues: recentIDs.enumerated().map { ($0.element, recentIDs.count - $0.offset) }
+    )
     var heap = BoundedPaletteResultHeap(limit: limit)
     for (sourceIndex, result) in deduplicatedPaletteResults(candidates).enumerated() {
         guard searching || !result.showsOnlyWhenSearching else { continue }
-        guard let score = scorePaletteResult(result, query: query, scorer: scorer) else { continue }
+        guard var score = scorePaletteResult(result, query: query, scorer: scorer) else { continue }
+
+        if searching, let boost = recency[result.id] {
+            score += boost
+        }
 
         heap.insert(ScoredPaletteResult(result: result, score: score, sourceIndex: sourceIndex))
     }
-    return promotePinnedResults(heap.sortedResults(), pinnedIDs: pinnedIDs)
+
+    var ranked = heap.sortedResults()
+    if !searching, !recentIDs.isEmpty {
+        ranked = promoteRecentResults(ranked, recentIDs: recentIDs)
+    }
+    return promotePinnedResults(ranked, pinnedIDs: pinnedIDs)
 }
 
 /// Lifts pinned results to the front of an already-ranked list, preserving pin order and
@@ -116,6 +133,24 @@ public func promotePinnedResults(
         .sorted { (pinOrder[$0.id] ?? .max) < (pinOrder[$1.id] ?? .max) }
     let rest = results.filter { pinOrder[$0.id] == nil }
     return pinned + rest
+}
+
+/// Lifts recent results to the front of an already-ranked list when the query is empty.
+public func promoteRecentResults(
+    _ results: [PaletteResult],
+    recentIDs: [String]
+) -> [PaletteResult] {
+    guard !recentIDs.isEmpty else { return results }
+
+    var order: [String: Int] = [:]
+    for (index, id) in recentIDs.enumerated() where order[id] == nil {
+        order[id] = index
+    }
+    let recent = results
+        .filter { order[$0.id] != nil }
+        .sorted { (order[$0.id] ?? .max) < (order[$1.id] ?? .max) }
+    let rest = results.filter { order[$0.id] == nil }
+    return recent + rest
 }
 
 /// Scores a candidate against the query using ``PaletteResult/searchText``, falling back to
@@ -162,14 +197,16 @@ public struct PaletteResultSnapshot {
         query: String,
         limit: Int,
         scorer: PaletteScorer,
-        pinnedIDs: [String] = []
+        pinnedIDs: [String] = [],
+        recentIDs: [String] = []
     ) {
         results = topPaletteResults(
             candidates: candidates,
             query: query,
             limit: limit,
             scorer: scorer,
-            pinnedIDs: pinnedIDs
+            pinnedIDs: pinnedIDs,
+            recentIDs: recentIDs
         )
     }
 
