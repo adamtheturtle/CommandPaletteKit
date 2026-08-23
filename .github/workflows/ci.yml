@@ -74,3 +74,21 @@ jobs:
         run: sudo xcode-select -s /Applications/Xcode_16.4.app
       - name: Run large-catalog ranking test
         run: swift test --filter tenThousandCandidates
+
+  documentation:
+    name: Build DocC
+    runs-on: macos-15
+    steps:
+      - uses: actions/checkout@v7
+      - name: Select Xcode
+        run: sudo xcode-select -s /Applications/Xcode_16.4.app
+      - name: Generate documentation
+        env:
+          SWIFT_PACKAGE_ENABLE_DOCC: "1"
+        run: |
+          swift package --allow-writing-to-directory ./docs-site \
+            generate-documentation \
+            --target CommandPaletteKit \
+            --include-extended-types \
+            --disable-indexing \
+            --output-path ./docs-site
