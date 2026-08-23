@@ -1,6 +1,6 @@
 # CommandPaletteKit
 
-A dependency-free SwiftUI command palette for macOS and iPad.
+A dependency-free SwiftUI command palette for macOS, iPad, and Apple TV.
 
 [Documentation](https://swiftpackageindex.com/adamtheturtle/CommandPaletteKit/documentation/commandpalettekit) |
 [Swift Package Index](https://swiftpackageindex.com/adamtheturtle/CommandPaletteKit)
@@ -75,7 +75,7 @@ Keep the package's platforms and Swift tools version aligned with the host app, 
 ## Requirements
 
 - Swift 6.0+
-- macOS 14+ or iOS 17+
+- macOS 14+, iOS 17+, or tvOS 17+
 
 ## License
 
