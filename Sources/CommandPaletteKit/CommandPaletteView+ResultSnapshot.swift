@@ -12,7 +12,8 @@ extension CommandPaletteView {
             candidates: newCandidates ?? candidates,
             query: query,
             limit: resultLimit,
-            scorer: scorer
+            scorer: scorer,
+            pinnedIDs: pinnedIDs
         )
         resultSnapshot = snapshot
     }

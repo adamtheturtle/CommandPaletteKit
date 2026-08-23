@@ -76,11 +76,15 @@ struct BoundedPaletteResultHeap {
 
 /// Returns the top-scoring palette results for a query, applying deduplication and
 /// ``PaletteResult/showsOnlyWhenSearching`` filtering.
+///
+/// When `pinnedIDs` is non-empty, matching pinned results are lifted to the front of the
+/// ranking in pin order while unpinned matches keep their score order afterward.
 public func topPaletteResults(
     candidates: [PaletteResult],
     query: String,
     limit: Int,
-    scorer: PaletteScorer
+    scorer: PaletteScorer,
+    pinnedIDs: [String] = []
 ) -> [PaletteResult] {
     guard limit > 0 else { return [] }
 
@@ -92,7 +96,26 @@ public func topPaletteResults(
 
         heap.insert(ScoredPaletteResult(result: result, score: score, sourceIndex: sourceIndex))
     }
-    return heap.sortedResults()
+    return promotePinnedResults(heap.sortedResults(), pinnedIDs: pinnedIDs)
+}
+
+/// Lifts pinned results to the front of an already-ranked list, preserving pin order and
+/// the relative order of unpinned rows.
+public func promotePinnedResults(
+    _ results: [PaletteResult],
+    pinnedIDs: [String]
+) -> [PaletteResult] {
+    guard !pinnedIDs.isEmpty else { return results }
+
+    var pinOrder: [String: Int] = [:]
+    for (index, id) in pinnedIDs.enumerated() where pinOrder[id] == nil {
+        pinOrder[id] = index
+    }
+    let pinned = results
+        .filter { pinOrder[$0.id] != nil }
+        .sorted { (pinOrder[$0.id] ?? .max) < (pinOrder[$1.id] ?? .max) }
+    let rest = results.filter { pinOrder[$0.id] == nil }
+    return pinned + rest
 }
 
 /// Scores a candidate against the query using ``PaletteResult/searchText``, falling back to
@@ -138,9 +161,16 @@ public struct PaletteResultSnapshot {
         candidates: [PaletteResult],
         query: String,
         limit: Int,
-        scorer: PaletteScorer
+        scorer: PaletteScorer,
+        pinnedIDs: [String] = []
     ) {
-        results = topPaletteResults(candidates: candidates, query: query, limit: limit, scorer: scorer)
+        results = topPaletteResults(
+            candidates: candidates,
+            query: query,
+            limit: limit,
+            scorer: scorer,
+            pinnedIDs: pinnedIDs
+        )
     }
 
     public func result(at index: Int) -> PaletteResult? {
