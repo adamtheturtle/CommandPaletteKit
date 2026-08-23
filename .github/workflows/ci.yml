@@ -45,9 +45,10 @@ jobs:
       - name: Select Xcode
         run: sudo xcode-select -s /Applications/Xcode_16.4.app
       - name: Build & test on iOS Simulator
+        # ``CommandPaletteKit`` is build-only; ``CommandPaletteKit-Package`` includes tests.
         run: |
           xcodebuild test \
-            -scheme CommandPaletteKit \
+            -scheme CommandPaletteKit-Package \
             -destination 'platform=iOS Simulator,name=iPhone 16'
 
   prose:
