@@ -46,6 +46,7 @@ extension CommandPaletteView {
             }
             .onChange(of: selectedIndex) { _, new in
                 scrollSelection(new, proxy: proxy)
+                announceSelectionChange(at: new)
             }
             .onPreferenceChange(PaletteRowHeightPreferenceKey.self) { heights in
                 if measuredRowHeights != heights { measuredRowHeights = heights }
@@ -152,6 +153,16 @@ extension CommandPaletteView {
 
         let id = results[new].id
         withAnimation(.easeOut(duration: 0.1)) { proxy.scrollTo(id) }
+    }
+
+    func announceSelectionChange(at index: Int) {
+        guard let result = resultSnapshot.result(at: index) else { return }
+
+        var announcement = result.title
+        if let subtitle = result.subtitle, !subtitle.isEmpty {
+            announcement += ", \(subtitle)"
+        }
+        AccessibilityNotification.Announcement(announcement).post()
     }
 
     // Internal so the macOS key monitor in CommandPaletteView+KeyMonitor.swift can
