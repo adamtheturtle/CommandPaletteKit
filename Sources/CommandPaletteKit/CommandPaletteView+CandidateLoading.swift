@@ -10,7 +10,12 @@ extension CommandPaletteView {
         var generation = candidateLoadGeneration
         let token = generation.begin()
         candidateLoadGeneration = generation
+        candidateLoadGeneration.markLoadStarted()
         return token
+    }
+
+    func shouldBeginCandidateLoad() -> Bool {
+        candidateLoadGeneration.shouldStartLoad()
     }
 
     func invalidateCandidateLoads() {

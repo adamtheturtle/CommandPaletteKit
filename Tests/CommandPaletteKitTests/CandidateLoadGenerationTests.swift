@@ -3,6 +3,7 @@
 //  CommandPaletteKit
 //
 
+import Foundation
 import Testing
 
 @testable import CommandPaletteKit
@@ -35,5 +36,14 @@ struct CandidateLoadGenerationTests {
         generation.invalidate()
 
         #expect(!generation.accepts(token))
+    }
+
+    @Test("Rapid re-entry is rate-limited")
+    func rateLimitedReentry() {
+        var generation = CandidateLoadGeneration()
+        let start = Date(timeIntervalSince1970: 0)
+        generation.markLoadStarted(at: start)
+        #expect(generation.shouldStartLoad(at: start.addingTimeInterval(0.01)) == false)
+        #expect(generation.shouldStartLoad(at: start.addingTimeInterval(0.06)))
     }
 }

@@ -159,6 +159,7 @@ public struct CommandPaletteView<RowContent: View>: View {
         }
         .task {
             guard case .async(let provider) = source else { return }
+            guard shouldBeginCandidateLoad() else { return }
 
             let generation = beginCandidateLoad()
             isLoading = true
