@@ -43,6 +43,14 @@ public struct CommandPaletteStyle: Sendable {
 
     /// The shipped appearance.
     public static let `default` = CommandPaletteStyle()
+
+    /// Foreground for selected rows that keeps contrast with ``selectionColor`` in light and dark mode.
+    func resolvedSelectedForeground(for colorScheme: ColorScheme) -> Color {
+        if colorScheme == .dark, selectionColor == Color.accentColor {
+            return .white
+        }
+        return selectedForeground
+    }
 }
 
 private struct CommandPaletteStyleKey: EnvironmentKey {
