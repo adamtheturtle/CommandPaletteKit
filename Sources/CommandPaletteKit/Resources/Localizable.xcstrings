@@ -1,0 +1,18 @@
+{
+  "sourceLanguage" : "en",
+  "strings" : {
+    "Loading…" : {
+      "comment" : "Async candidate loading label in the command palette."
+    },
+    "No matches." : {
+      "comment" : "Shown when a search query matches no palette results."
+    },
+    "Search…" : {
+      "comment" : "Placeholder for the command palette search field."
+    },
+    "Start typing to search." : {
+      "comment" : "Shown when the palette has no visible results for an empty query."
+    }
+  },
+  "version" : "1.0"
+}
