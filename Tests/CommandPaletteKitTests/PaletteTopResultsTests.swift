@@ -124,6 +124,55 @@ struct PaletteTopResultsTests {
         )
         #expect(categoryHits.map(\.id) == ["cat"])
     }
+
+    @Test("A scorer nil on every field excludes the candidate")
+    func nilOnAllFieldsExcludes() {
+        let hidden = PaletteResult(
+            id: "hidden",
+            title: "Hidden",
+            subtitle: "secret",
+            systemImage: "eye.slash",
+            searchText: "Hidden"
+        ) {}
+        let visible = PaletteResult(
+            id: "visible",
+            title: "Visible",
+            systemImage: "eye",
+            searchText: "Visible"
+        ) {}
+
+        let results = topPaletteResults(
+            candidates: [hidden, visible],
+            query: "v",
+            limit: 10
+        ) { _, text in
+            text.localizedCaseInsensitiveContains("hidden") || text == "secret" ? nil : 1
+        }
+
+        #expect(results.map(\.id) == ["visible"])
+    }
+
+    @Test("Nil on searchText alone does not block a subtitle match")
+    func nilSearchTextAllowsSubtitleMatch() {
+        let candidate = PaletteResult(
+            id: "sub",
+            title: "Alpha",
+            subtitle: "Open preferences",
+            systemImage: "gear",
+            searchText: "Alpha"
+        ) {}
+
+        let results = topPaletteResults(
+            candidates: [candidate],
+            query: "preferences",
+            limit: 10
+        ) { query, text in
+            // Simulate a searchText-only miss while subtitle still matches.
+            text == "Alpha" ? nil : paletteFuzzyScore(query, text)
+        }
+
+        #expect(results.map(\.id) == ["sub"])
+    }
 }
 
 private final class ChangingScorer: @unchecked Sendable {

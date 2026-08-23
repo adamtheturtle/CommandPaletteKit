@@ -71,8 +71,14 @@ func foldForPaletteSearch(_ string: String) -> String {
     return nfc.folding(options: [.caseInsensitive, .diacriticInsensitive], locale: .current)
 }
 
-/// A function that scores a `query` against a candidate's search text. Return `nil` to
-/// exclude the candidate, or a score where higher ranks closer to the top.
+/// A function that scores a `query` against one candidate text field (search text, title,
+/// subtitle, or category). Return `nil` when that field does not match; the palette keeps
+/// the best non-`nil` score among fields and excludes the candidate when every field
+/// returns `nil`.
+///
+/// To hide a candidate regardless of the query, filter it out of the provider’s list rather
+/// than returning `nil` from a single field — a miss on ``PaletteResult/searchText`` no
+/// longer excludes a row that still matches on subtitle or category.
 ///
 /// Prefer a pure function: the palette may invoke the scorer many times per keystroke and
 /// materializes one ranking snapshot per query/candidate refresh. Side effects or

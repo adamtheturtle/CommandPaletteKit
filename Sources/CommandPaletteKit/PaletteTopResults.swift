@@ -98,6 +98,10 @@ public func topPaletteResults(
 /// Scores a candidate against the query using ``PaletteResult/searchText``, falling back to
 /// the best match among title, subtitle, and category so hosts need not fold those fields
 /// into `searchText` manually.
+///
+/// A `nil` from the scorer means “no match for this field”. The candidate is excluded only
+/// when every scored field returns `nil`. To drop a candidate unconditionally, filter it
+/// from the provider’s list (the scorer no longer treats a single-field `nil` as exclusion).
 func scorePaletteResult(
     _ result: PaletteResult,
     query: String,
