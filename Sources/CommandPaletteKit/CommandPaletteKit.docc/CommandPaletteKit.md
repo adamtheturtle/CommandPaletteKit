@@ -47,6 +47,7 @@ import CommandPaletteKit
 ### Essentials
 
 - <doc:GettingStarted>
+- <doc:Documentation>
 - ``CommandPaletteView``
 - ``PaletteResult``
 
