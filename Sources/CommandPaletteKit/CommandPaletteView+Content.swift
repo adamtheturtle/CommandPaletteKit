@@ -178,6 +178,11 @@ extension CommandPaletteView {
                     selectedIndex = index
                 }
             #endif
+            #if os(iOS)
+                // Pointer (trackpad / mouse) affordance on iPad so hover selection matches
+                // macOS visual feedback when a pointer is connected.
+                .hoverEffect(.highlight)
+            #endif
             #if os(tvOS)
                 .focusable()
                 .focused($focusedResultID, equals: result.id)
