@@ -17,6 +17,7 @@ public struct PaletteRow: View {
     let isSelected: Bool
 
     @Environment(\.commandPaletteStyle) private var style
+    @Environment(\.commandPaletteQuery) private var query
     @Environment(\.colorScheme) private var colorScheme
 
     /// Creates a row for `result`, drawing it as selected when `isSelected` is `true`.
@@ -32,7 +33,7 @@ public struct PaletteRow: View {
                 .foregroundStyle(isSelected ? selectedForeground : Color.secondary)
                 .accessibilityHidden(true)
             VStack(alignment: .leading, spacing: 1) {
-                Text(result.title)
+                titleText
                     .lineLimit(1)
                     .foregroundStyle(isSelected ? selectedForeground : Color.primary)
                 if let subtitle = result.subtitle, !subtitle.isEmpty {
@@ -60,6 +61,16 @@ public struct PaletteRow: View {
             RoundedRectangle(cornerRadius: style.rowCornerRadius, style: .continuous)
                 .fill(isSelected ? style.selectionColor : Color.clear)
         )
+        .accessibilityLabel(Text(result.title))
+    }
+
+    @ViewBuilder
+    private var titleText: some View {
+        if paletteQueryIsSearching(query) {
+            paletteHighlightedTitle(result.title, query: query)
+        } else {
+            Text(result.title)
+        }
     }
 
     private var selectedForeground: Color {

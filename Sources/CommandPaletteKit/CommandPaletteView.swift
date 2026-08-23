@@ -161,6 +161,7 @@ public struct CommandPaletteView<RowContent: View>: View {
             }
         }
         .frame(width: width, height: height)
+        .environment(\.commandPaletteQuery, query)
         .background {
             if let material = style.backgroundMaterial {
                 Rectangle().fill(material)
