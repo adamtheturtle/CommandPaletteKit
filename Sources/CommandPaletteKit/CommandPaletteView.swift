@@ -38,7 +38,7 @@ func deduplicatedPaletteResults(_ results: [PaletteResult]) -> [PaletteResult] {
 /// The command palette surface: a search field above a scrolling, keyboard-navigable
 /// result list. Owns the query and the selection; the candidate list is built on appear
 /// from the supplied provider and re-scored on every keystroke.
-public struct CommandPaletteView<RowContent: View>: View {
+public struct CommandPaletteView<RowContent: View>: View { // swiftlint:disable:this type_body_length
     @Environment(\.dismiss) private var dismiss
     @Environment(\.commandPaletteExtendedKeyboardNavigation) private var extendedNavigation
     @Environment(\.commandPaletteStyle) private var style
