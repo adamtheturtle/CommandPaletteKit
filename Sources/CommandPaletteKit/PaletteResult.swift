@@ -26,6 +26,9 @@ public struct PaletteResult: Identifiable {
     /// than a fixed enum, so the palette stays domain-agnostic. Pass `nil` to hide it.
     public let category: String?
 
+    /// Optional keyboard shortcut label shown beside the title (e.g. `⌘K`, `⇧⌘P`).
+    public let keyboardShortcut: String?
+
     /// The leading glyph. Any `Image` - not limited to SF Symbols. Use
     /// ``init(id:title:subtitle:category:systemImage:searchText:showsOnlyWhenSearching:action:)``
     /// for the common SF Symbol case.
@@ -48,6 +51,7 @@ public struct PaletteResult: Identifiable {
         title: String,
         subtitle: String? = nil,
         category: String? = nil,
+        keyboardShortcut: String? = nil,
         icon: Image,
         searchText: String? = nil,
         showsOnlyWhenSearching: Bool = false,
@@ -57,6 +61,7 @@ public struct PaletteResult: Identifiable {
         self.title = title
         self.subtitle = subtitle
         self.category = category
+        self.keyboardShortcut = keyboardShortcut
         self.icon = icon
         self.searchText = searchText ?? title
         self.showsOnlyWhenSearching = showsOnlyWhenSearching
@@ -70,6 +75,7 @@ public struct PaletteResult: Identifiable {
         subtitle: String? = nil,
         category: String? = nil,
         systemImage: String,
+        keyboardShortcut: String? = nil,
         searchText: String? = nil,
         showsOnlyWhenSearching: Bool = false,
         action: @escaping @MainActor () -> Void
@@ -79,6 +85,7 @@ public struct PaletteResult: Identifiable {
             title: title,
             subtitle: subtitle,
             category: category,
+            keyboardShortcut: keyboardShortcut,
             icon: Image(systemName: systemImage),
             searchText: searchText,
             showsOnlyWhenSearching: showsOnlyWhenSearching,

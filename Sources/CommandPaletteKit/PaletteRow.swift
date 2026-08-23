@@ -39,6 +39,11 @@ public struct PaletteRow: View {
                         .font(.caption)
                         .lineLimit(1)
                         .foregroundStyle(isSelected ? style.selectedForeground.opacity(0.8) : Color.secondary)
+                } else if let shortcut = result.keyboardShortcut, !shortcut.isEmpty {
+                    Text(shortcut)
+                        .font(.caption)
+                        .lineLimit(1)
+                        .foregroundStyle(isSelected ? style.selectedForeground.opacity(0.8) : Color.secondary)
                 }
             }
             Spacer(minLength: 8)
