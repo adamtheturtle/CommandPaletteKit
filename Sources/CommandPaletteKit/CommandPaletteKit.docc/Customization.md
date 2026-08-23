@@ -95,3 +95,15 @@ let recencyBoosted: PaletteScorer = { query, text in
 
 CommandPaletteView(scorer: recencyBoosted) { buildCandidates() }
 ```
+
+### Stateful scorers
+
+``CommandPaletteView`` materializes one ``PaletteResult`` ranking whenever the query or
+candidate list changes, then uses that snapshot for rendering, keyboard navigation,
+scrolling, and Return activation. A scorer that mutates shared state or returns different
+scores for the same inputs across calls within a single refresh can still produce surprising
+orderings, but display and activation will agree on whichever ranking that refresh produced.
+
+Prefer pure scorers: given the same `(query, text)` pair, return the same score. If you need
+recency or pinning, fold that into the score from immutable inputs (a captured lookup table)
+rather than mutating counters inside the scorer closure.
