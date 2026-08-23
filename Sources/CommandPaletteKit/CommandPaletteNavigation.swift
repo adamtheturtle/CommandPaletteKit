@@ -15,7 +15,8 @@ private struct ExtendedKeyNavigationKey: EnvironmentKey {
 
 extension EnvironmentValues {
     /// Whether the palette honours the extra power-user navigation keys (`Ctrl-N`/`Ctrl-P`
-    /// to move down/up and Page Up/Down to jump a viewport). Read by ``CommandPaletteView``.
+    /// to move down/up, Page Up/Down to jump a viewport, and Home/End to jump to the first
+    /// or last result). Read by ``CommandPaletteView``.
     /// Defaults to `false`.
     public var commandPaletteExtendedKeyboardNavigation: Bool {
         get { self[ExtendedKeyNavigationKey.self] }
@@ -25,8 +26,9 @@ extension EnvironmentValues {
 
 extension View {
     /// Enables (or disables) the palette's extra keyboard navigation for this view and its
-    /// descendants: Emacs-style `Ctrl-N`/`Ctrl-P` to move down/up, and Page Up/Down to move
-    /// by a viewport-sized step. Off by default to avoid surprising key interception.
+    /// descendants: Emacs-style `Ctrl-N`/`Ctrl-P` to move down/up, Page Up/Down to move
+    /// by a viewport-sized step, and Home/End to jump to the first or last result. Off by
+    /// default to avoid surprising key interception.
     public func commandPaletteExtendedKeyboardNavigation(_ enabled: Bool = true) -> some View {
         environment(\.commandPaletteExtendedKeyboardNavigation, enabled)
     }

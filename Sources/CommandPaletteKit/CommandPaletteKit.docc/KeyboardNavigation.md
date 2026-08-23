@@ -25,8 +25,8 @@ delivers the key events differs between macOS and iOS.
 ### Power-user keys (opt-in)
 
 Off by default to avoid surprising key interception. Enable Emacs-style `Ctrl-N`/`Ctrl-P`
-(move down/up) and Page Up/Down (jump a viewport-sized step) with
-``SwiftUICore/View/commandPaletteExtendedKeyboardNavigation(_:)``:
+(move down/up), Page Up/Down (jump a viewport-sized step), and Home/End (first/last result)
+with ``SwiftUICore/View/commandPaletteExtendedKeyboardNavigation(_:)``:
 
 ```swift
 CommandPaletteView { buildCandidates() }
@@ -35,4 +35,4 @@ CommandPaletteView { buildCandidates() }
 
 When enabled, `Ctrl-N`/`Ctrl-P` act only with the Control modifier held, so typing `n` or
 `p` into the search field still works. Page Up/Down move by roughly a page of rows,
-estimated from the surface height.
+estimated from the surface height. Home and End jump to the first and last visible result.
