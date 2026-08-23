@@ -38,9 +38,11 @@ public struct PaletteResult: Identifiable, @unchecked Sendable {
     /// for the common SF Symbol case.
     public let icon: Image
 
-    /// The text the query is scored against. Usually the title, sometimes with extra
-    /// keywords folded in so a row can be found by a synonym (e.g. "Reload" by "refresh").
-    public let searchText: String
+/// The text the query is scored against. Usually the title, sometimes with extra
+/// keywords folded in so a row can be found by a synonym (e.g. "Reload" by "refresh").
+/// Ranking also considers ``title``, ``subtitle``, and ``category`` and keeps the best
+/// score among those fields.
+public let searchText: String
 
     /// When `true`, the row is hidden until the user types a query, so a large category
     /// doesn't flood the empty-query list yet stays reachable by searching.
