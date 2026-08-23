@@ -47,6 +47,18 @@ struct CandidateLoadGenerationTests {
         #expect(generation.shouldStartLoad(at: start.addingTimeInterval(0.06)))
     }
 
+    @Test("Delay until the next load reflects the remaining rate-limit window")
+    func delayUntilNextLoadAllowed() {
+        var generation = CandidateLoadGeneration()
+        let start = Date(timeIntervalSince1970: 0)
+        generation.markLoadStarted(at: start)
+        #expect(generation.delayUntilNextLoadAllowed(at: start) == CandidateLoadGeneration.minimumLoadInterval)
+        let soon = start.addingTimeInterval(0.02)
+        #expect(generation.delayUntilNextLoadAllowed(at: soon) > 0)
+        #expect(generation.delayUntilNextLoadAllowed(at: soon) < CandidateLoadGeneration.minimumLoadInterval)
+        #expect(generation.delayUntilNextLoadAllowed(at: start.addingTimeInterval(0.06)) == 0)
+    }
+
     @Test("Invalidation preserves the rate-limit window")
     func invalidateKeepsRateLimit() {
         var generation = CandidateLoadGeneration()
