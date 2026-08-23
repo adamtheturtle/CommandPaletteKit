@@ -46,6 +46,7 @@ public struct CommandPaletteView<RowContent: View>: View {
     @Environment(\.commandPaletteStyle) var style
     @Environment(\.commandPaletteShowsKeyBindingFooter) var showsKeyBindingFooter
     @Environment(\.commandPaletteGroupsResultsByCategory) var groupsByCategory
+    @Environment(\.commandPalettePinnedIDs) var pinnedIDs
 
     @State var query = ""
     @State var candidates: [PaletteResult] = []
@@ -173,6 +174,10 @@ public struct CommandPaletteView<RowContent: View>: View {
         // `initial: true` seeds it on the first evaluation, so the two never disagree.
         .onChange(of: extendedNavigation, initial: true) { _, enabled in
             extendedNavigationEnabled = enabled
+        }
+        .onChange(of: pinnedIDs) { _, _ in
+            refreshResultSnapshot()
+            selectedIndex = min(selectedIndex, max(results.count - 1, 0))
         }
         #if os(macOS)
         .background(WindowReader { paletteWindow = $0 })
