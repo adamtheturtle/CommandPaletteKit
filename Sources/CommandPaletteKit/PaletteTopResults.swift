@@ -74,7 +74,9 @@ struct BoundedPaletteResultHeap {
     }
 }
 
-func topPaletteResults(
+/// Returns the top-scoring palette results for a query, applying deduplication and
+/// ``PaletteResult/showsOnlyWhenSearching`` filtering.
+public func topPaletteResults(
     candidates: [PaletteResult],
     query: String,
     limit: Int,
@@ -94,10 +96,15 @@ func topPaletteResults(
 }
 
 /// One materialized ranking shared by rendering, navigation, scrolling, and activation.
-struct PaletteResultSnapshot {
-    private(set) var results: [PaletteResult] = []
+///
+/// Host tests can build a snapshot directly to assert ranking behaviour without presenting
+/// ``CommandPaletteView``.
+public struct PaletteResultSnapshot {
+    public private(set) var results: [PaletteResult] = []
 
-    mutating func refresh(
+    public init() {}
+
+    public mutating func refresh(
         candidates: [PaletteResult],
         query: String,
         limit: Int,
@@ -106,7 +113,7 @@ struct PaletteResultSnapshot {
         results = topPaletteResults(candidates: candidates, query: query, limit: limit, scorer: scorer)
     }
 
-    func result(at index: Int) -> PaletteResult? {
+    public func result(at index: Int) -> PaletteResult? {
         results.indices.contains(index) ? results[index] : nil
     }
 }
