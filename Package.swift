@@ -10,7 +10,8 @@ let package = Package(
         .tvOS(.v17)
     ],
     products: [
-        .library(name: "CommandPaletteKit", targets: ["CommandPaletteKit"])
+        .library(name: "CommandPaletteKit", targets: ["CommandPaletteKit"]),
+        .executable(name: "CommandPaletteKitDemo", targets: ["CommandPaletteKitDemo"])
     ],
     dependencies: [],
     targets: [
@@ -21,6 +22,11 @@ let package = Package(
         .testTarget(
             name: "CommandPaletteKitTests",
             dependencies: ["CommandPaletteKit"]
+        ),
+        .executableTarget(
+            name: "CommandPaletteKitDemo",
+            dependencies: ["CommandPaletteKit"],
+            path: "DemoApp"
         )
     ]
 )
