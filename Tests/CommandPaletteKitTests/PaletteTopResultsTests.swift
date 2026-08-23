@@ -59,6 +59,31 @@ struct PaletteTopResultsTests {
 
         #expect(results.isEmpty)
     }
+
+    @Test("Ten thousand candidates rank within a practical bound")
+    func tenThousandCandidates() {
+        let candidates = (0 ..< 10_000).map { index in
+            PaletteResult(
+                id: String(index),
+                title: "Item \(index)",
+                systemImage: "circle",
+                searchText: "Item \(index)"
+            ) {}
+        }
+
+        let clock = ContinuousClock()
+        let start = clock.now
+        let results = topPaletteResults(
+            candidates: candidates,
+            query: "Item",
+            limit: 40,
+            scorer: paletteFuzzyScore
+        )
+        let elapsed = clock.now - start
+
+        #expect(results.count == 40)
+        #expect(elapsed < .seconds(2))
+    }
 }
 
 private final class ChangingScorer: @unchecked Sendable {
