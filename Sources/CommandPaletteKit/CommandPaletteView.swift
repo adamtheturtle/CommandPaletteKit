@@ -167,6 +167,10 @@ public struct CommandPaletteView<RowContent: View>: View {
                 candidates = loadedCandidates
                 refreshResultSnapshot(candidates: loadedCandidates)
                 isLoading = false
+            } else if case .async = source {
+                // Mark loading immediately so retained results show the partial indicator
+                // (or the empty list shows the full spinner) before `.task` resumes.
+                isLoading = true
             }
             queryFocused = true
             #if os(macOS)
@@ -175,7 +179,12 @@ public struct CommandPaletteView<RowContent: View>: View {
         }
         .task {
             guard case .async(let provider) = source else { return }
-            guard shouldBeginCandidateLoad() else { return }
+            guard shouldBeginCandidateLoad() else {
+                // Rate-limited re-entry: keep showing any retained results without a
+                // stuck loading spinner.
+                isLoading = false
+                return
+            }
 
             let generation = beginCandidateLoad()
             isLoading = true

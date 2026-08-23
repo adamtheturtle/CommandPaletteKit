@@ -225,11 +225,20 @@ extension CommandPaletteView {
         query = ""
         selectedIndex = 0
         measuredRowHeights = [:]
-        resultSnapshot = PaletteResultSnapshot()
         isActivatingSelection = false
-        isLoading = false
-        if case .async = source {
-            candidates = []
+        switch source {
+        case .sync:
+            resultSnapshot = PaletteResultSnapshot()
+            isLoading = false
+        case .async:
+            // Keep the last candidates/results so a re-presentation can show them beside
+            // the compact loading row while the provider runs again. First presentation
+            // still has empty results and uses the full-size loading affordance.
+            if !candidates.isEmpty {
+                refreshResultSnapshot(candidates: candidates)
+            } else {
+                resultSnapshot = PaletteResultSnapshot()
+            }
         }
     }
 }
