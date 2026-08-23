@@ -18,6 +18,17 @@ struct PaletteFuzzyScoreTests {
         #expect(normalizedPaletteQuery(" \ncommand\r ") == "command")
     }
 
+    @Test("A query that folds to empty is treated as an empty search")
+    func foldEmptyQueryIsNeutral() {
+        // Combining acute accent alone trims to non-empty but folds away.
+        let combiningOnly = "\u{0301}"
+        #expect(!normalizedPaletteQuery(combiningOnly).isEmpty)
+        #expect(foldForPaletteSearch(combiningOnly).isEmpty)
+        #expect(!paletteQueryIsSearching(combiningOnly))
+        #expect(paletteFuzzyScore(combiningOnly, "Anything") == 0)
+        #expect(paletteFuzzyScore(combiningOnly, "Café") == 0)
+    }
+
     @Test("No common subsequence is no match")
     func noMatch() {
         #expect(paletteFuzzyScore("xyz", "New Pad") == nil)

@@ -95,7 +95,7 @@ extension CommandPaletteView {
     }
 
     var emptyResultsMessage: some View {
-        Text(normalizedPaletteQuery(query).isEmpty ? emptyMessage : noMatchesMessage)
+        Text(paletteQueryIsSearching(query) ? noMatchesMessage : emptyMessage)
             .foregroundStyle(.secondary)
             .frame(maxWidth: .infinity, alignment: .center)
             .padding(.top, 40)
