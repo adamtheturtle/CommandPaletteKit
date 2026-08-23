@@ -61,9 +61,27 @@ extension CommandPaletteView {
             } else if results.isEmpty {
                 emptyResultsMessage
             } else {
+                if isLoading {
+                    partialLoadingIndicator
+                }
                 resultRows
             }
         }
+    }
+
+    var partialLoadingIndicator: some View {
+        HStack(spacing: 8) {
+            ProgressView()
+                .controlSize(.small)
+            Text(loadingMessage)
+                .font(.caption)
+                .foregroundStyle(.secondary)
+            Spacer(minLength: 0)
+        }
+        .padding(.horizontal, 8)
+        .padding(.vertical, 6)
+        .accessibilityElement(children: .combine)
+        .accessibilityLabel(loadingMessage)
     }
 
     var loadingMessageView: some View {
