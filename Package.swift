@@ -27,7 +27,14 @@ let package = Package(
 
 // Resolve the DocC plugin only when generating documentation so app consumers do not
 // download it as a transitive dependency of every Package.resolved refresh.
-if ProcessInfo.processInfo.environment["SWIFT_PACKAGE_ENABLE_DOCC"] == "1" {
+//
+// `SWIFT_PACKAGE_ENABLE_DOCC` covers local and CI docs builds. `SPI_BUILDER` is set by
+// Swift Package Index: SPI greps Package.swift for the plugin URL and skips injecting its
+// own copy when the string is present, so we must enable the dependency under that env too.
+let environment = ProcessInfo.processInfo.environment
+if environment["SWIFT_PACKAGE_ENABLE_DOCC"] == "1"
+    || environment["SPI_BUILDER"] != nil
+{
     package.dependencies.append(
         .package(url: "https://github.com/apple/swift-docc-plugin", from: "1.0.0")
     )
