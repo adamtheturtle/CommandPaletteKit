@@ -52,4 +52,21 @@ struct PaletteFuzzyScoreTests {
     func caseInsensitive() {
         #expect(paletteFuzzyScore("NEW", "new pad") != nil)
     }
+
+    @Test("Matching ignores diacritics")
+    func diacriticInsensitive() {
+        #expect(paletteFuzzyScore("cafe", "Café") != nil)
+        #expect(paletteFuzzyScore("naive", "naïve") != nil)
+        #expect(paletteFuzzyScore("Árpád", "arpad") != nil)
+    }
+
+    @Test("NFC and NFD forms of the same text score equally")
+    func unicodeNormalization() throws {
+        let composed = "é"
+        let decomposed = "e\u{0301}"
+        let composedScore = try #require(paletteFuzzyScore(composed, "Café"))
+        let decomposedScore = try #require(paletteFuzzyScore(decomposed, "Cafe\u{0301}"))
+        #expect(composedScore == decomposedScore)
+        #expect(foldForPaletteSearch(composed) == foldForPaletteSearch(decomposed))
+    }
 }
