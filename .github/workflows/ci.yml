@@ -63,3 +63,14 @@ jobs:
         run: uvx vale@3.13.0.0 sync
       - name: Lint prose
         run: git ls-files '*.md' | xargs --no-run-if-empty uvx vale@3.13.0.0
+
+  performance:
+    name: Performance regression (optional)
+    runs-on: macos-15
+    continue-on-error: true
+    steps:
+      - uses: actions/checkout@v7
+      - name: Select Xcode
+        run: sudo xcode-select -s /Applications/Xcode_16.4.app
+      - name: Run large-catalog ranking test
+        run: swift test --filter tenThousandCandidates

@@ -3,3 +3,5 @@ builder:
   configs:
     - documentation_targets:
         - CommandPaletteKit
+      test_targets:
+        - CommandPaletteKitTests
