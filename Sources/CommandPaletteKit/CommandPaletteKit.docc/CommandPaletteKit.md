@@ -66,3 +66,7 @@ import CommandPaletteKit
 
 - <doc:KeyboardNavigation>
 - ``SwiftUICore/View/commandPaletteExtendedKeyboardNavigation(_:)``
+
+### Concurrency
+
+- <doc:SendableConcurrency>
