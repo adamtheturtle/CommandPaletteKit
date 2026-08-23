@@ -68,6 +68,7 @@ extension CommandPaletteView {
                 resultRows
             }
         }
+        .animation(.easeOut(duration: 0.12), value: results.map(\.id))
     }
 
     var partialLoadingIndicator: some View {
