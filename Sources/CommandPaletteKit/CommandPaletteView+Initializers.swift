@@ -144,6 +144,65 @@ extension CommandPaletteView {
             row: row
         )
     }
+
+    /// Creates a palette whose candidates are produced by an `async` provider that receives
+    /// the current query. The provider reloads after `queryDebounceNanoseconds` of quiet
+    /// typing so each keystroke does not stampede the backend.
+    ///
+    /// - Parameters:
+    ///   - placeholder: Prompt shown in the empty search field.
+    ///   - emptyMessage: Shown when the query is empty and nothing is listed yet.
+    ///   - noMatchesMessage: Shown when a non-empty query matches nothing.
+    ///   - loadingMessage: Label shown beside the spinner while the provider resolves.
+    ///   - resultLimit: Maximum rows rendered; the highest-scoring win. Zero or negative
+    ///     values render no rows; pass `.max` for no limit.
+    ///   - scorer: Match/scoring function. Defaults to ``paletteFuzzyScore(_:_:)``.
+    ///   - queryDebounceNanoseconds: Quiet period after the last keystroke before the
+    ///     provider runs. Defaults to ``PaletteCandidateQueryReload/defaultDebounceNanoseconds``.
+    ///   - width: Surface width. Invalid values use the 620-point default; oversized values
+    ///     are capped at 10,000 points.
+    ///   - height: Surface height. Invalid values use the 460-point default; oversized values
+    ///     are capped at 10,000 points.
+    ///   - onActivate: Called instead of `result.action` when a row is activated, if
+    ///     provided - lets the host route activation itself. When `nil`, the palette
+    ///     dismisses and calls `result.action`.
+    ///   - candidates: Asynchronously builds candidates for the settled query, on the
+    ///     main actor.
+    ///   - row: Builds the content for each row from its ``PaletteResult`` and whether it
+    ///     is the current selection.
+    public init(
+        placeholder: LocalizedStringKey = "Search…",
+        emptyMessage: LocalizedStringKey = "Start typing to search.",
+        noMatchesMessage: LocalizedStringKey = "No matches.",
+        loadingMessage: LocalizedStringKey = "Loading…",
+        resultLimit: Int = 40,
+        scorer: @escaping PaletteScorer = paletteFuzzyScore,
+        queryDebounceNanoseconds: UInt64 = PaletteCandidateQueryReload.defaultDebounceNanoseconds,
+        width: CGFloat = 620,
+        height: CGFloat = 460,
+        onActivate: (@MainActor (PaletteResult) -> Void)? = nil,
+        candidates: @escaping @MainActor (String) async -> [PaletteResult],
+        @ViewBuilder row: @escaping (PaletteResult, Bool) -> RowContent
+    ) {
+        self.init(
+            source: .asyncQuery(
+                debounceNanoseconds: PaletteCandidateQueryReload.normalizedDebounceNanoseconds(
+                    queryDebounceNanoseconds
+                ),
+                candidates
+            ),
+            placeholder: placeholder,
+            emptyMessage: emptyMessage,
+            noMatchesMessage: noMatchesMessage,
+            loadingMessage: loadingMessage,
+            resultLimit: resultLimit,
+            scorer: scorer,
+            width: width,
+            height: height,
+            onActivate: onActivate,
+            row: row
+        )
+    }
 }
 
 /// A non-positive limit deliberately renders no result rows. Keeping normalization at
@@ -263,6 +322,37 @@ extension CommandPaletteView where RowContent == PaletteRow {
             noMatchesMessage: noMatchesMessage,
             resultLimit: resultLimit,
             scorer: scorer,
+            width: width,
+            height: height,
+            onActivate: onActivate,
+            candidates: candidates,
+            row: { result, isSelected in PaletteRow(result: result, isSelected: isSelected) }
+        )
+    }
+
+    /// Creates a palette using the built-in ``PaletteRow`` whose async provider receives the
+    /// query and reloads after a debounce window.
+    public init(
+        placeholder: LocalizedStringKey = "Search…",
+        emptyMessage: LocalizedStringKey = "Start typing to search.",
+        noMatchesMessage: LocalizedStringKey = "No matches.",
+        loadingMessage: LocalizedStringKey = "Loading…",
+        resultLimit: Int = 40,
+        scorer: @escaping PaletteScorer = paletteFuzzyScore,
+        queryDebounceNanoseconds: UInt64 = PaletteCandidateQueryReload.defaultDebounceNanoseconds,
+        width: CGFloat = 620,
+        height: CGFloat = 460,
+        onActivate: (@MainActor (PaletteResult) -> Void)? = nil,
+        candidates: @escaping @MainActor (String) async -> [PaletteResult]
+    ) {
+        self.init(
+            placeholder: placeholder,
+            emptyMessage: emptyMessage,
+            noMatchesMessage: noMatchesMessage,
+            loadingMessage: loadingMessage,
+            resultLimit: resultLimit,
+            scorer: scorer,
+            queryDebounceNanoseconds: queryDebounceNanoseconds,
             width: width,
             height: height,
             onActivate: onActivate,

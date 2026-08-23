@@ -282,7 +282,7 @@ extension CommandPaletteView {
         case .sync, .binding:
             resultSnapshot = PaletteResultSnapshot()
             isLoading = false
-        case .async:
+        case .async, .asyncQuery:
             // Keep the last candidates/results so a re-presentation can show them beside
             // the compact loading row while the provider runs again. First presentation
             // still has empty results and uses the full-size loading affordance.
