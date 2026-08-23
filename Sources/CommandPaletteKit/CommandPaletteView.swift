@@ -96,6 +96,12 @@ public struct CommandPaletteView<RowContent: View>: View {
         /// ``PaletteCandidateRefresh/applying(upserts:removingIDs:to:)`` to the binding's
         /// wrapped value to refresh incrementally without rebuilding the view.
         case binding(Binding<[PaletteResult]>)
+        /// Reloads whenever the query changes, waiting `debounceNanoseconds` after the last
+        /// change so keystrokes do not stampede the provider.
+        case asyncQuery(
+            debounceNanoseconds: UInt64,
+            @MainActor (String) async -> [PaletteResult]
+        )
     }
 
     let source: CandidateSource
@@ -202,6 +208,8 @@ public struct CommandPaletteView<RowContent: View>: View {
                 // Mark loading immediately so retained results show the partial indicator
                 // (or the empty list shows the full spinner) before `.task` resumes.
                 isLoading = true
+            } else if case .asyncQuery = source {
+                isLoading = true
             }
             queryFocused = true
             #if os(macOS)
@@ -242,6 +250,17 @@ public struct CommandPaletteView<RowContent: View>: View {
                 isLoading = false
                 return
             }
+        }
+        // Cancels the previous sleep/load when the query changes, so only the settled
+        // query invokes the provider after the debounce window.
+        .task(id: query) {
+            guard case .asyncQuery(let debounceNanoseconds, let provider) = source else {
+                return
+            }
+            await loadAsyncQueryCandidates(
+                debounceNanoseconds: debounceNanoseconds,
+                provider: provider
+            )
         }
         .onDisappear {
             invalidateCandidateLoads()
