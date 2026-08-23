@@ -23,7 +23,7 @@ struct PaletteFuzzyScoreTests {
         // Combining acute accent alone trims to non-empty but folds away.
         let combiningOnly = "\u{0301}"
         #expect(!normalizedPaletteQuery(combiningOnly).isEmpty)
-        #expect(foldForPaletteSearch(combiningOnly).isEmpty)
+        #expect(paletteQueryFoldedText(combiningOnly).isEmpty)
         #expect(!paletteQueryIsSearching(combiningOnly))
         #expect(paletteFuzzyScore(combiningOnly, "Anything") == 0)
         #expect(paletteFuzzyScore(combiningOnly, "Café") == 0)
@@ -69,6 +69,15 @@ struct PaletteFuzzyScoreTests {
         #expect(paletteFuzzyScore("cafe", "Café") != nil)
         #expect(paletteFuzzyScore("naive", "naïve") != nil)
         #expect(paletteFuzzyScore("Árpád", "arpad") != nil)
+    }
+
+    @Test("Folding preserves meaningful script marks outside Latin diacritics")
+    func scriptMarksPreserved() {
+        // Dakuten/handakuten must not collapse to their base kana.
+        #expect(foldForPaletteSearch("が") != foldForPaletteSearch("か"))
+        #expect(foldForPaletteSearch("パ") != foldForPaletteSearch("ハ"))
+        #expect(paletteFuzzyScore("が", "か") == nil)
+        #expect(paletteFuzzyScore("パ", "ハ") == nil)
     }
 
     @Test("NFC and NFD forms of the same text score equally")

@@ -28,7 +28,7 @@ public func paletteFuzzyScore(_ query: String, _ text: String) -> Int? {
     // Folding can erase a query that was only combining marks (or other ignorable
     // characters). Treat that like an empty query so we don't prefix-match everything
     // and surface ``PaletteResult/showsOnlyWhenSearching`` rows.
-    guard !needle.isEmpty else { return 0 }
+    guard paletteQueryIsSearching(trimmed) else { return 0 }
 
     if haystack == needle { return 1000 }
     if haystack.hasPrefix(needle) { return 850 }
@@ -74,17 +74,21 @@ func normalizedPaletteQuery(_ query: String) -> String {
 /// Combining-mark-only queries trim to non-empty text but fold to empty; treat those as
 /// not searching so ``PaletteResult/showsOnlyWhenSearching`` rows stay hidden.
 func paletteQueryIsSearching(_ query: String) -> Bool {
-    !foldForPaletteSearch(normalizedPaletteQuery(query)).isEmpty
+    !paletteQueryFoldedText(normalizedPaletteQuery(query)).isEmpty
 }
 
 /// NFC-normalizes and folds case and diacritics for palette search comparisons.
-///
-/// Also strips combining marks so a query of only accents (which
-/// ``String/folding(options:locale:)`` leaves intact) becomes empty rather than a
-/// prefix match against every candidate.
 func foldForPaletteSearch(_ string: String) -> String {
     let nfc = string.precomposedStringWithCanonicalMapping
-    let folded = nfc.folding(options: [.caseInsensitive, .diacriticInsensitive], locale: .current)
+    return nfc.folding(options: [.caseInsensitive, .diacriticInsensitive], locale: .current)
+}
+
+/// Folds a query and strips orphan combining marks so accent-only input counts as empty.
+///
+/// Used only for ``paletteQueryIsSearching(_:)``; general haystack/needle folding keeps
+/// script marks such as Japanese dakuten and Indic matras intact.
+func paletteQueryFoldedText(_ query: String) -> String {
+    let folded = foldForPaletteSearch(query)
     let mutable = NSMutableString(string: folded)
     CFStringTransform(mutable, nil, kCFStringTransformStripCombiningMarks, false)
     return mutable as String
