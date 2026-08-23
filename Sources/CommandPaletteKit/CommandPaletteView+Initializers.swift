@@ -113,6 +113,37 @@ extension CommandPaletteView {
             row: row
         )
     }
+
+    /// Creates a palette whose candidates come from a host-owned `Binding`.
+    ///
+    /// Mutate the binding with ``PaletteCandidateRefresh/applying(upserts:removingIDs:to:)``
+    /// to refresh the catalog incrementally without reconstructing the view.
+    public init(
+        placeholder: LocalizedStringKey = "Search…",
+        emptyMessage: LocalizedStringKey = "Start typing to search.",
+        noMatchesMessage: LocalizedStringKey = "No matches.",
+        resultLimit: Int = 40,
+        scorer: @escaping PaletteScorer = paletteFuzzyScore,
+        width: CGFloat = 620,
+        height: CGFloat = 460,
+        onActivate: (@MainActor (PaletteResult) -> Void)? = nil,
+        candidates: Binding<[PaletteResult]>,
+        @ViewBuilder row: @escaping (PaletteResult, Bool) -> RowContent
+    ) {
+        self.init(
+            source: .binding(candidates),
+            placeholder: placeholder,
+            emptyMessage: emptyMessage,
+            noMatchesMessage: noMatchesMessage,
+            loadingMessage: "Loading…",
+            resultLimit: resultLimit,
+            scorer: scorer,
+            width: width,
+            height: height,
+            onActivate: onActivate,
+            row: row
+        )
+    }
 }
 
 /// A non-positive limit deliberately renders no result rows. Keeping normalization at
@@ -203,6 +234,33 @@ extension CommandPaletteView where RowContent == PaletteRow {
             emptyMessage: emptyMessage,
             noMatchesMessage: noMatchesMessage,
             loadingMessage: loadingMessage,
+            resultLimit: resultLimit,
+            scorer: scorer,
+            width: width,
+            height: height,
+            onActivate: onActivate,
+            candidates: candidates,
+            row: { result, isSelected in PaletteRow(result: result, isSelected: isSelected) }
+        )
+    }
+
+    /// Creates a palette using the built-in ``PaletteRow`` backed by a host-owned candidate
+    /// binding for incremental refresh.
+    public init(
+        placeholder: LocalizedStringKey = "Search…",
+        emptyMessage: LocalizedStringKey = "Start typing to search.",
+        noMatchesMessage: LocalizedStringKey = "No matches.",
+        resultLimit: Int = 40,
+        scorer: @escaping PaletteScorer = paletteFuzzyScore,
+        width: CGFloat = 620,
+        height: CGFloat = 460,
+        onActivate: (@MainActor (PaletteResult) -> Void)? = nil,
+        candidates: Binding<[PaletteResult]>
+    ) {
+        self.init(
+            placeholder: placeholder,
+            emptyMessage: emptyMessage,
+            noMatchesMessage: noMatchesMessage,
             resultLimit: resultLimit,
             scorer: scorer,
             width: width,
