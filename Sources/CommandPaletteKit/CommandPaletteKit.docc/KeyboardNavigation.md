@@ -1,11 +1,12 @@
 # Keyboard navigation
 
-Drive the palette entirely from the keyboard on macOS and on iPad with a hardware keyboard.
+Drive the palette entirely from the keyboard on macOS and on iPad with a hardware keyboard,
+and from the Siri Remote on Apple TV.
 
 ## Overview
 
 The palette is keyboard-first. Selection logic is platform-agnostic; only the plumbing that
-delivers the key events differs between macOS and iOS.
+delivers the key events differs between macOS, iOS, and tvOS.
 
 ### Default keys
 
@@ -21,6 +22,9 @@ delivers the key events differs between macOS and iOS.
 - **iPad (hardware keyboard):** the same arrows, Return, and Esc are driven through
   SwiftUI's `onKeyPress`, attached to an ancestor of the focused search field so the field
   doesn't intercept the arrows for caret movement.
+- **Apple TV:** `onMoveCommand` moves the selection with the Siri Remote, result rows are
+  focusable so the focus engine tracks the highlight, Play/Pause activates the selection,
+  and the Menu button dismisses via `onExitCommand`.
 
 ### Power-user keys (opt-in)
 

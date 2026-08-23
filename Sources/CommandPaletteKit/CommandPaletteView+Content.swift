@@ -131,6 +131,10 @@ extension CommandPaletteView {
                     selectedIndex = index
                 }
             #endif
+            #if os(tvOS)
+                .focusable()
+                .focused($focusedResultID, equals: result.id)
+            #endif
             // One combined element per row so VoiceOver reads it as a single button, and
             // the selected one announces (and exposes for tests) the `.isSelected` trait.
             .accessibilityElement(children: .combine)
@@ -178,6 +182,9 @@ extension CommandPaletteView {
         // the rows sliding under the cursor would otherwise hover the selection back.
         hoverGate.keyboardDidMove()
         selectedIndex = new
+        #if os(tvOS)
+            focusedResultID = results[new].id
+        #endif
     }
 
     // How many rows Page Up/Down jumps: roughly a viewport of the currently realized custom

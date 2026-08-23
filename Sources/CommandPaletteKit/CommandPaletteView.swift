@@ -65,6 +65,11 @@ public struct CommandPaletteView<RowContent: View>: View {
     // evaluation - reads this instead; reading the environment property there yields the
     // default (`false`) and quietly disables the opt-in keys altogether.
     @State var extendedNavigationEnabled = false
+    #if os(tvOS)
+        // Focus identity for the highlighted row so the Siri Remote's focus engine and the
+        // palette's selection stay aligned.
+        @FocusState var focusedResultID: String?
+    #endif
     #if os(macOS)
         // Local key-event monitor for the up/down arrows. The search field is focused so
         // the user can type, but AppKit's field editor then swallows the arrow keys for
@@ -233,6 +238,27 @@ public struct CommandPaletteView<RowContent: View>: View {
 
             move(by: Int.max)
             return .handled
+        }
+        #endif
+        #if os(tvOS)
+        // Siri Remote / game-controller navigation. Rows are focusable (see resultRow) so
+        // focus and `selectedIndex` stay aligned; move commands also nudge the selection
+        // when focus sits on the search field.
+        .onMoveCommand { direction in
+            switch direction {
+            case .up: move(by: -1)
+            case .down: move(by: 1)
+            default: break
+            }
+        }
+        .onPlayPauseCommand { activateSelection() }
+        .onExitCommand { dismiss() }
+        .onChange(of: focusedResultID) { _, newID in
+            guard let newID,
+                  let index = results.firstIndex(where: { $0.id == newID })
+            else { return }
+
+            selectedIndex = index
         }
         #endif
     }
