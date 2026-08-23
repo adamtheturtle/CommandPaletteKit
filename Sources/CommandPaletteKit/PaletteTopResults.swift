@@ -88,11 +88,37 @@ public func topPaletteResults(
     var heap = BoundedPaletteResultHeap(limit: limit)
     for (sourceIndex, result) in deduplicatedPaletteResults(candidates).enumerated() {
         guard searching || !result.showsOnlyWhenSearching else { continue }
-        guard let score = scorer(query, result.searchText) else { continue }
+        guard let score = scorePaletteResult(result, query: query, scorer: scorer) else { continue }
 
         heap.insert(ScoredPaletteResult(result: result, score: score, sourceIndex: sourceIndex))
     }
     return heap.sortedResults()
+}
+
+/// Scores a candidate against the query using ``PaletteResult/searchText``, falling back to
+/// the best match among title, subtitle, and category so hosts need not fold those fields
+/// into `searchText` manually.
+func scorePaletteResult(
+    _ result: PaletteResult,
+    query: String,
+    scorer: PaletteScorer
+) -> Int? {
+    var best: Int?
+    var seen = Set<String>()
+    var fields = [result.searchText, result.title]
+    if let subtitle = result.subtitle, !subtitle.isEmpty { fields.append(subtitle) }
+    if let category = result.category, !category.isEmpty { fields.append(category) }
+
+    for field in fields where seen.insert(field).inserted {
+        guard let score = scorer(query, field) else { continue }
+
+        if let current = best {
+            best = max(current, score)
+        } else {
+            best = score
+        }
+    }
+    return best
 }
 
 /// One materialized ranking shared by rendering, navigation, scrolling, and activation.

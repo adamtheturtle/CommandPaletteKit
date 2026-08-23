@@ -84,6 +84,46 @@ struct PaletteTopResultsTests {
         #expect(results.count == 40)
         #expect(elapsed < .seconds(2))
     }
+
+    @Test("Subtitle and category text contribute to ranking")
+    func scoresSubtitleAndCategory() {
+        let bySubtitle = PaletteResult(
+            id: "sub",
+            title: "Alpha",
+            subtitle: "Open preferences",
+            systemImage: "gear",
+            searchText: "Alpha"
+        ) {}
+        let byCategory = PaletteResult(
+            id: "cat",
+            title: "Beta",
+            category: "Navigate",
+            systemImage: "arrow.right",
+            searchText: "Beta"
+        ) {}
+        let unrelated = PaletteResult(
+            id: "other",
+            title: "Gamma",
+            systemImage: "circle",
+            searchText: "Gamma"
+        ) {}
+
+        let subtitleHits = topPaletteResults(
+            candidates: [bySubtitle, unrelated],
+            query: "preferences",
+            limit: 10,
+            scorer: paletteFuzzyScore
+        )
+        #expect(subtitleHits.map(\.id) == ["sub"])
+
+        let categoryHits = topPaletteResults(
+            candidates: [byCategory, unrelated],
+            query: "navigate",
+            limit: 10,
+            scorer: paletteFuzzyScore
+        )
+        #expect(categoryHits.map(\.id) == ["cat"])
+    }
 }
 
 private final class ChangingScorer: @unchecked Sendable {

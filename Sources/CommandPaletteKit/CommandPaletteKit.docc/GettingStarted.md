@@ -56,8 +56,10 @@ Bind the presentation to the conventional ⌘K:
 Each ``PaletteResult`` is a row plus a `@MainActor` action. A few fields shape how it is
 found and shown:
 
-- ``PaletteResult/searchText`` is what the query scores against - fold in synonyms so a row
-  is found by more than its title (e.g. find "Reload" by typing "refresh").
+- ``PaletteResult/searchText`` is what the query scores against first - fold in synonyms so a
+  row is found by more than its title (e.g. find "Reload" by typing "refresh"). The default
+  ranking also considers ``PaletteResult/title``, ``PaletteResult/subtitle``, and
+  ``PaletteResult/category``.
 - ``PaletteResult/showsOnlyWhenSearching`` hides a row until the user types, so a large
   category doesn't flood the empty-query list yet stays reachable by searching.
 - ``PaletteResult/category`` is an optional trailing tag - free text, so the palette stays
