@@ -14,7 +14,10 @@ let package = Package(
         .package(url: "https://github.com/apple/swift-docc-plugin", from: "1.0.0")
     ],
     targets: [
-        .target(name: "CommandPaletteKit"),
+        .target(
+            name: "CommandPaletteKit",
+            resources: [.process("Resources")]
+        ),
         .testTarget(
             name: "CommandPaletteKitTests",
             dependencies: ["CommandPaletteKit"]
