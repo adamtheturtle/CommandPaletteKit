@@ -14,14 +14,17 @@ import Foundation
 /// an empty query (so an unfiltered list shows), and a positive score otherwise where a
 /// larger value is a better match.
 ///
+/// Matching folds case and diacritics, and compares Unicode-normalized (NFC) forms so
+/// composed and decomposed characters score the same.
+///
 /// This is the default scorer used by ``CommandPaletteView``; pass your own
 /// ``PaletteScorer`` to the view to add weighting, recency, or pinning.
 public func paletteFuzzyScore(_ query: String, _ text: String) -> Int? {
     let trimmed = normalizedPaletteQuery(query)
     guard !trimmed.isEmpty else { return 0 }
 
-    let haystack = text.lowercased()
-    let needle = trimmed.lowercased()
+    let haystack = foldForPaletteSearch(text)
+    let needle = foldForPaletteSearch(trimmed)
 
     if haystack == needle { return 1000 }
     if haystack.hasPrefix(needle) { return 850 }
@@ -60,6 +63,12 @@ public func paletteFuzzyScore(_ query: String, _ text: String) -> Int? {
 
 func normalizedPaletteQuery(_ query: String) -> String {
     query.trimmingCharacters(in: .whitespacesAndNewlines)
+}
+
+/// NFC-normalizes and folds case and diacritics for palette search comparisons.
+func foldForPaletteSearch(_ string: String) -> String {
+    let nfc = string.precomposedStringWithCanonicalMapping
+    return nfc.folding(options: [.caseInsensitive, .diacriticInsensitive], locale: .current)
 }
 
 /// A function that scores a `query` against a candidate's search text. Return `nil` to
