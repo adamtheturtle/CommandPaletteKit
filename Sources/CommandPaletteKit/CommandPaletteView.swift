@@ -218,6 +218,18 @@ public struct CommandPaletteView<RowContent: View>: View {
             move(by: pageStep)
             return .handled
         }
+        .onKeyPress(.home) {
+            guard extendedNavigation else { return .ignored }
+
+            move(by: -Int.max)
+            return .handled
+        }
+        .onKeyPress(.end) {
+            guard extendedNavigation else { return .ignored }
+
+            move(by: Int.max)
+            return .handled
+        }
         #endif
     }
 }

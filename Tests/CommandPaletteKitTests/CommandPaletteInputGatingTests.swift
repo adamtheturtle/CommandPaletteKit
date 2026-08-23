@@ -153,6 +153,16 @@ struct HoverSelectionGateTests {
             #expect(response(pageDown, extendedNavigation: true) == .move(rows: Self.pageStep))
         }
 
+        @Test("Home and End jump to the ends of the list when enabled")
+        func homeAndEndNavigation() {
+            let home = PaletteKeyEvent(keyCode: 115, isInPaletteWindow: true)
+            let end = PaletteKeyEvent(keyCode: 119, isInPaletteWindow: true)
+            #expect(response(home) == .passThrough)
+            #expect(response(end) == .passThrough)
+            #expect(response(home, extendedNavigation: true) == .move(rows: -Int.max))
+            #expect(response(end, extendedNavigation: true) == .move(rows: Int.max))
+        }
+
         @Test("Another window's extended keys are left alone too")
         func extendedKeysFromAnotherWindowPassThrough() {
             let controlN = PaletteKeyEvent(keyCode: 45, isControlHeld: true,

@@ -63,7 +63,8 @@ struct HoverSelectionGate: Equatable {
     /// window identity that issue #9 turns on is not something a synthesised event carries
     /// convincingly.
     struct PaletteKeyEvent: Equatable {
-        /// AppKit virtual key code. 125 is the down arrow, 126 up, 116 Page Up, 121 Page Down.
+        /// AppKit virtual key code. 125 is the down arrow, 126 up, 116 Page Up, 121 Page Down,
+        /// 115 Home, 119 End.
         var keyCode: UInt16
         var isControlHeld = false
         /// Whether an arrow key carries a text-navigation modifier such as Option or Command.
@@ -138,6 +139,10 @@ struct HoverSelectionGate: Equatable {
         switch event.keyCode {
         case 116: return .move(rows: -pageStep)
         case 121: return .move(rows: pageStep)
+        // Home / End jump to the first or last result. Huge deltas clamp in
+        // ``clampedSelectionIndex`` without needing the current result count here.
+        case 115: return .move(rows: -Int.max)
+        case 119: return .move(rows: Int.max)
         default: return .passThrough
         }
     }
