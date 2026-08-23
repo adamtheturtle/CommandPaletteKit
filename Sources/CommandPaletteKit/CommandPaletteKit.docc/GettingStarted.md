@@ -63,6 +63,24 @@ found and shown:
 - ``PaletteResult/category`` is an optional trailing tag - free text, so the palette stays
   domain-agnostic.
 
+### Curate the empty-query list
+
+With an empty search field the palette shows every candidate that does not set
+``PaletteResult/showsOnlyWhenSearching`` to `true`. Mark infrequent commands with that flag
+to keep the default list short while still finding them once the user types:
+
+```swift
+PaletteResult(
+    id: "debug.reset",
+    title: "Reset Debug State",
+    systemImage: "arrow.counterclockwise",
+    showsOnlyWhenSearching: true
+) { resetDebugState() }
+```
+
+Pair this with a small set of always-visible "pinned" commands (no flag) to curate what
+appears before the user searches.
+
 ### Route activation
 
 By default the palette dismisses and calls the result's `action`. Pass `onActivate:` to
