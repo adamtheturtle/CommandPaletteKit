@@ -228,6 +228,9 @@ public struct CommandPaletteView<RowContent: View>: View {
                     selectedIndex = 0
                     refreshResultSnapshot()
                 }
+                .accessibilityHint(Text(
+                    "Type to filter commands. Use the arrow keys to move the selection, then press Return to activate."
+                ))
         }
         .padding(.horizontal, 16)
         .padding(.vertical, 14)
