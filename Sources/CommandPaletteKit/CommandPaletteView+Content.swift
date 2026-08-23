@@ -228,7 +228,7 @@ extension CommandPaletteView {
         measuredRowHeights = [:]
         isActivatingSelection = false
         switch source {
-        case .sync:
+        case .sync, .binding:
             resultSnapshot = PaletteResultSnapshot()
             isLoading = false
         case .async:

@@ -90,6 +90,10 @@ public struct CommandPaletteView<RowContent: View>: View {
     enum CandidateSource {
         case sync(@MainActor () -> [PaletteResult])
         case async(@MainActor () async -> [PaletteResult])
+        /// Host-owned catalog that the palette mirrors. Apply
+        /// ``PaletteCandidateRefresh/applying(upserts:removingIDs:to:)`` to the binding's
+        /// wrapped value to refresh incrementally without rebuilding the view.
+        case binding(Binding<[PaletteResult]>)
     }
 
     let source: CandidateSource
@@ -137,6 +141,15 @@ public struct CommandPaletteView<RowContent: View>: View {
         resultSnapshot.results
     }
 
+    /// Identity fingerprint for bound catalogs so SwiftUI can observe incremental edits.
+    var bindingCandidateFingerprint: String {
+        guard case .binding(let binding) = source else { return "" }
+
+        return binding.wrappedValue.map {
+            "\($0.id)\u{1E}\($0.title)\u{1E}\($0.subtitle ?? "")\u{1E}\($0.category ?? "")\u{1E}\($0.searchText)"
+        }.joined(separator: "\u{1F}")
+    }
+
     public var body: some View {
         VStack(spacing: 0) {
             searchField
@@ -172,6 +185,12 @@ public struct CommandPaletteView<RowContent: View>: View {
                 candidates = loadedCandidates
                 refreshResultSnapshot(candidates: loadedCandidates)
                 isLoading = false
+            } else if case .binding(let binding) = source {
+                invalidateCandidateLoads()
+                let loadedCandidates = binding.wrappedValue
+                candidates = loadedCandidates
+                refreshResultSnapshot(candidates: loadedCandidates)
+                isLoading = false
             } else if case .async = source {
                 // Mark loading immediately so retained results show the partial indicator
                 // (or the empty list shows the full spinner) before `.task` resumes.
@@ -181,6 +200,14 @@ public struct CommandPaletteView<RowContent: View>: View {
             #if os(macOS)
                 installArrowKeyMonitor()
             #endif
+        }
+        .onChange(of: bindingCandidateFingerprint) { _, _ in
+            guard case .binding(let binding) = source else { return }
+
+            let loadedCandidates = binding.wrappedValue
+            candidates = loadedCandidates
+            refreshResultSnapshot(candidates: loadedCandidates)
+            selectedIndex = min(selectedIndex, max(results.count - 1, 0))
         }
         .task {
             guard case .async(let provider) = source else { return }
