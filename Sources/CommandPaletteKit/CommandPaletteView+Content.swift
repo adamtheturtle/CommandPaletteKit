@@ -199,7 +199,13 @@ extension CommandPaletteView {
     func activate(_ result: PaletteResult) {
         guard !isActivatingSelection else { return }
 
+        // Hold the lock only for this activation (including re-entrant calls from the
+        // action). Clearing afterward matters when `dismiss()` is a no-op — inline or
+        // otherwise non-dismissible hosts never hit `onDisappear` / `resetPresentationState`,
+        // so a sticky flag would ignore every later Return or click.
         isActivatingSelection = true
+        defer { isActivatingSelection = false }
+
         if let onActivate {
             onActivate(result)
         } else {
