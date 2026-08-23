@@ -73,4 +73,9 @@ func foldForPaletteSearch(_ string: String) -> String {
 
 /// A function that scores a `query` against a candidate's search text. Return `nil` to
 /// exclude the candidate, or a score where higher ranks closer to the top.
+///
+/// Prefer a pure function: the palette may invoke the scorer many times per keystroke and
+/// materializes one ranking snapshot per query/candidate refresh. Side effects or
+/// non-deterministic scores can change ordering between refreshes; see the Customization
+/// article for guardrails when a scorer must carry recency or pinning state.
 public typealias PaletteScorer = @Sendable (_ query: String, _ text: String) -> Int?
