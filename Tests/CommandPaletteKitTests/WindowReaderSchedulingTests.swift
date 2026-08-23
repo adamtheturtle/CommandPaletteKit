@@ -17,16 +17,36 @@ enum PaletteWindowReaderDeferral {
 @Suite("WindowReader scheduling")
 struct WindowReaderSchedulingTests {
     @Test("Window resolution is deferred off the view update")
-    func defersStateUpdate() async throws {
+    func defersStateUpdate() async {
         final class Flag: @unchecked Sendable {
-            var value = false
+            private let lock = NSLock()
+            private var _value = false
+
+            var value: Bool {
+                get {
+                    lock.lock()
+                    defer { lock.unlock() }
+                    return _value
+                }
+                set {
+                    lock.lock()
+                    defer { lock.unlock() }
+                    _value = newValue
+                }
+            }
         }
+
         let flag = Flag()
+        let (stream, continuation) = AsyncStream<Void>.makeStream()
         PaletteWindowReaderDeferral.deferStateUpdate {
             flag.value = true
+            continuation.yield(())
+            continuation.finish()
         }
+        // `DispatchQueue.main.async` must not run inline on this call stack.
         #expect(flag.value == false)
-        try await Task.sleep(for: .milliseconds(5))
+        var iterator = stream.makeAsyncIterator()
+        await iterator.next()
         #expect(flag.value == true)
     }
 }
