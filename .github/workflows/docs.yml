@@ -25,6 +25,8 @@ jobs:
       - name: Select Xcode
         run: sudo xcode-select -s /Applications/Xcode_16.4.app
       - name: Build documentation
+        env:
+          SWIFT_PACKAGE_ENABLE_DOCC: "1"
         run: |
           swift package --allow-writing-to-directory ./docs-site \
             generate-documentation \
