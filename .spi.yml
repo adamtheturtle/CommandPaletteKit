@@ -5,3 +5,6 @@ builder:
         - CommandPaletteKit
       test_targets:
         - CommandPaletteKitTests
+      platform_versions:
+        - name: tvOS
+          version: '17.0'

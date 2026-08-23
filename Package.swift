@@ -5,7 +5,8 @@ let package = Package(
     name: "CommandPaletteKit",
     platforms: [
         .macOS(.v14),
-        .iOS(.v17)
+        .iOS(.v17),
+        .tvOS(.v17)
     ],
     products: [
         .library(name: "CommandPaletteKit", targets: ["CommandPaletteKit"])
