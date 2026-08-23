@@ -190,17 +190,33 @@ extension CommandPaletteView {
     }
 
     func activateSelection() {
+        guard !isActivatingSelection else { return }
         guard let selectedResult = resultSnapshot.result(at: selectedIndex) else { return }
 
         activate(selectedResult)
     }
 
     func activate(_ result: PaletteResult) {
-        dismiss()
+        guard !isActivatingSelection else { return }
+
+        isActivatingSelection = true
         if let onActivate {
             onActivate(result)
         } else {
             result.action()
+        }
+        dismiss()
+    }
+
+    func resetPresentationState() {
+        query = ""
+        selectedIndex = 0
+        measuredRowHeights = [:]
+        resultSnapshot = PaletteResultSnapshot()
+        isActivatingSelection = false
+        isLoading = false
+        if case .async = source {
+            candidates = []
         }
     }
 }

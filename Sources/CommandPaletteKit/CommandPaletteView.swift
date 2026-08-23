@@ -49,6 +49,8 @@ public struct CommandPaletteView<RowContent: View>: View {
     @State var candidates: [PaletteResult] = []
     @State var selectedIndex = 0
     @State var isLoading = false
+    /// Set while a row is being activated so lifecycle-only dismissals never run actions.
+    @State var isActivatingSelection = false
     @State var candidateLoadGeneration = CandidateLoadGeneration()
     @State var measuredRowHeights: [String: CGFloat] = [:]
     @State var resultSnapshot = PaletteResultSnapshot()
@@ -151,6 +153,7 @@ public struct CommandPaletteView<RowContent: View>: View {
         .background(WindowReader { paletteWindow = $0 })
         #endif
         .onAppear {
+            resetPresentationState()
             // Build a synchronous list up front so the zero-config case shows instantly
             // with no loading flash. The async source is loaded in `.task` below.
             if case .sync(let provider) = source {
@@ -184,6 +187,7 @@ public struct CommandPaletteView<RowContent: View>: View {
         .onDisappear {
             invalidateCandidateLoads()
             isLoading = false
+            isActivatingSelection = false
             #if os(macOS)
                 removeArrowKeyMonitor()
             #endif
