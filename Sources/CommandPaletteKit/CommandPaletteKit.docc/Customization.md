@@ -13,6 +13,7 @@ knob only when you want to change it.
 | Trailing category tag | ``PaletteResult/category`` | `nil` (hidden) |
 | Icon | ``PaletteResult/icon`` (any `Image`) or `systemImage:` | required |
 | Hide until searching | ``PaletteResult/showsOnlyWhenSearching`` | `false` |
+| Keyboard shortcut label | ``PaletteResult/keyboardShortcut`` | `nil` (hidden) |
 | Match/scoring | `scorer:` | ``paletteFuzzyScore(_:_:)`` |
 | Result cap | `resultLimit:` | `40` |
 | Placeholder / empty / no-match copy | `placeholder:` / `emptyMessage:` / `noMatchesMessage:` | English defaults |
@@ -20,6 +21,7 @@ knob only when you want to change it.
 | Activation routing | `onActivate:` | runs `result.action` |
 | Row cell | `row:` `@ViewBuilder` | built-in ``PaletteRow`` |
 | Colours & metrics | ``SwiftUICore/View/commandPaletteStyle(_:)`` | accent fill, white-on-accent |
+| Surface material | ``CommandPaletteStyle/backgroundMaterial`` | `nil` (transparent) |
 
 ```swift
 CommandPaletteView(
@@ -36,6 +38,15 @@ CommandPaletteView(
 
 Apply ``CommandPaletteStyle`` with ``SwiftUICore/View/commandPaletteStyle(_:)`` to change the
 colours and metrics of the surface and its rows. Unset values fall back to the defaults.
+
+Use ``CommandPaletteStyle/backgroundMaterial`` for a vibrancy or material-backed surface:
+
+```swift
+CommandPaletteView { buildCandidates() }
+    .commandPaletteStyle(
+        CommandPaletteStyle(backgroundMaterial: .regularMaterial)
+    )
+```
 
 ```swift
 CommandPaletteView { buildCandidates() }
