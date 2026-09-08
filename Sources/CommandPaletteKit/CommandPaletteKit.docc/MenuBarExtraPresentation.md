@@ -4,9 +4,8 @@ Present the palette from a menu bar extra on macOS.
 
 ## Overview
 
-Menu bar apps often expose a compact command surface through a ``MenuBarExtra``. Pair it
-with ``CommandPaletteView`` so users can fuzzy-search actions that are not worth listing
-individually in the menu.
+Menu bar apps often expose a compact command surface through a ``MenuBarExtra``.
+Pair it with ``CommandPaletteView`` so users can fuzzy-search actions that are not worth listing individually in the menu.
 
 ### Present from a menu bar extra
 
@@ -38,8 +37,7 @@ struct MenuBarPaletteApp: App {
 
 ### Tips
 
-- Use a dedicated ``Window`` scene for the palette so it can grow with results while the
-  menu bar icon stays compact.
+- Use a dedicated ``Window`` scene for the palette so it can grow with results while the menu bar icon stays compact.
 - Prefer a sheet presentation from a regular document window when the palette is modal.
 - Async candidate providers work well here when commands depend on remote state.
 

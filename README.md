@@ -2,8 +2,7 @@
 
 A dependency-free SwiftUI command palette for macOS, iPad, and Apple TV.
 
-[Documentation](https://swiftpackageindex.com/adamtheturtle/CommandPaletteKit/documentation/commandpalettekit) |
-[Swift Package Index](https://swiftpackageindex.com/adamtheturtle/CommandPaletteKit)
+[Documentation](https://swiftpackageindex.com/adamtheturtle/CommandPaletteKit/documentation/commandpalettekit) | [Swift Package Index](https://swiftpackageindex.com/adamtheturtle/CommandPaletteKit)
 
 ## Installation
 
@@ -50,27 +49,22 @@ struct ContentView: View {
 }
 ```
 
-See the [Getting started](https://swiftpackageindex.com/adamtheturtle/CommandPaletteKit/documentation/commandpalettekit/gettingstarted)
-article for async providers, custom rows, and styling.
+See the [Getting started](https://swiftpackageindex.com/adamtheturtle/CommandPaletteKit/documentation/commandpalettekit/gettingstarted) article for async providers, custom rows, and styling.
 
 ## Local development against a checkout
 
-To try an unpublished branch from an app that already depends on the package, point the
-dependency at your local clone:
+To try an unpublished branch from an app that already depends on the package, point the dependency at your local clone:
 
 ```swift
 .package(path: "../CommandPaletteKit")
 ```
 
-Or override a remote dependency temporarily with Xcode's local package replacement, or with
-SwiftPM's `--replace-scm-with-registry` / path-based `Package.swift` edits in a private fork.
-Keep the package's platforms and Swift tools version aligned with the host app, then run
-`swift test` in the checkout before integrating.
+Or override a remote dependency temporarily with Xcode's local package replacement, or with SwiftPM's `--replace-scm-with-registry` / path-based `Package.swift` edits in a private fork.
+Keep the package's platforms and Swift tools version aligned with the host app, then run `swift test` in the checkout before integrating.
 
 ## Product
 
-- `CommandPaletteKit`: Searchable command palette UI with fuzzy matching, keyboard
-  navigation, and action-backed results.
+- `CommandPaletteKit`: Searchable command palette UI with fuzzy matching and keyboard navigation backed by result actions.
 
 ## Requirements
 
@@ -79,4 +73,5 @@ Keep the package's platforms and Swift tools version aligned with the host app, 
 
 ## License
 
-MIT. See [LICENSE](LICENSE).
+MIT.
+See [LICENSE](LICENSE).
