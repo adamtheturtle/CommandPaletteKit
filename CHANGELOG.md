@@ -2,8 +2,7 @@
 
 All notable changes to this project are documented in this file.
 
-The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and this project
-adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
+The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
@@ -11,8 +10,7 @@ adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ### Fixed
 
-- Materialize one result snapshot so display, navigation, and Return activation share the
-  same ranking when a scorer is stateful.
+- Materialize one result snapshot so display, navigation, and Return activation share the same ranking when a scorer is stateful.
 - Measure custom row heights for Page Up/Down instead of assuming a fixed 36-point row.
 - Reject stale async candidate loads after cancellation or a newer generation.
 - Bound top-result selection so large catalogs are not fully sorted before `resultLimit`.

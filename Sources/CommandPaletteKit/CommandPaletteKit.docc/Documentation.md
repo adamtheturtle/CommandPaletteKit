@@ -14,8 +14,8 @@ Documentation is published automatically on every push to `main`:
 - [Swift Package Index](https://swiftpackageindex.com/adamtheturtle/CommandPaletteKit/documentation/commandpalettekit)
 - [GitHub Pages](https://adamtheturtle.github.io/CommandPaletteKit/documentation/commandpalettekit)
 
-The README links to SPI by default. Both sites are built from the same DocC sources using
-the Swift-DocC plugin in `.github/workflows/docs.yml`.
+The README links to SPI by default.
+Both sites are built from the same DocC sources using the Swift-DocC plugin in `.github/workflows/docs.yml`.
 
 ### Local preview
 

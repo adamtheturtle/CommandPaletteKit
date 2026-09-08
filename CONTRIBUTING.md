@@ -1,11 +1,12 @@
 # Contributing
 
-Bug reports and pull requests are welcome. Please open an issue before making a substantial
-API change.
+Bug reports and pull requests are welcome.
+Please open an issue before making a substantial API change.
 
 ## Development
 
-The package requires Swift 6.0. Before submitting a change, run:
+The package requires Swift 6.0.
+Before submitting a change, run:
 
 ```sh
 swiftlint lint --strict
@@ -14,8 +15,8 @@ swift test
 
 On macOS, CI also builds and tests for an iOS Simulator destination with Xcode 16.4.
 
-Prose in tracked Markdown files is linted with Vale (see `.vale.ini`). Sync styles and lint
-with:
+Prose in tracked Markdown files is linted with Vale (see `.vale.ini`).
+Sync styles and lint with:
 
 ```sh
 uvx vale@3.13.0.0 sync

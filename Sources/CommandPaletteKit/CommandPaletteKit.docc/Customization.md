@@ -4,8 +4,8 @@ Override only what you need - every knob has a default that reproduces the shipp
 
 ## Overview
 
-The zero-config call site stays short because everything below has a default. Reach for a
-knob only when you want to change it.
+The zero-config call site stays short because everything below has a default.
+Reach for a knob only when you want to change it.
 
 | Knob | Where | Default |
 |---|---|---|
@@ -36,8 +36,8 @@ CommandPaletteView(
 
 ## Styling
 
-Apply ``CommandPaletteStyle`` with ``SwiftUICore/View/commandPaletteStyle(_:)`` to change the
-colours and metrics of the surface and its rows. Unset values fall back to the defaults.
+Apply ``CommandPaletteStyle`` with ``SwiftUICore/View/commandPaletteStyle(_:)`` to change the colours and metrics of the surface and its rows.
+Unset values fall back to the defaults.
 
 Use ``CommandPaletteStyle/backgroundMaterial`` for a vibrancy or material-backed surface:
 
@@ -61,9 +61,8 @@ CommandPaletteView { buildCandidates() }
 
 ## Custom rows
 
-Pass a `row` builder to replace the cell entirely. It receives the ``PaletteResult`` and
-whether it is the current selection; the container keeps owning selection, hover,
-scroll-to, and accessibility, so you only describe the cell's appearance:
+Pass a `row` builder to replace the cell entirely.
+It receives the ``PaletteResult`` and whether it is the current selection; the container keeps owning selection, hover, scroll-to, and accessibility, so you only describe the cell's appearance:
 
 ```swift
 CommandPaletteView(candidates: { buildCandidates() }) { result, isSelected in
@@ -76,14 +75,12 @@ CommandPaletteView(candidates: { buildCandidates() }) { result, isSelected in
 }
 ```
 
-The built-in ``PaletteRow`` is public, so a custom builder can also wrap or decorate it
-rather than start from scratch.
+The built-in ``PaletteRow`` is public, so a custom builder can also wrap or decorate it rather than start from scratch.
 
 ## Async candidates
 
-When the candidate list comes from disk, a database, or the network, pass an `async`
-provider instead. The palette presents immediately and shows a loading affordance until the
-provider resolves; the synchronous form is unchanged:
+When the candidate list comes from disk, a database, or the network, pass an `async` provider instead.
+The palette presents immediately and shows a loading affordance until the provider resolves; the synchronous form is unchanged:
 
 ```swift
 CommandPaletteView(loadingMessage: "Indexing…") {
@@ -93,10 +90,8 @@ CommandPaletteView(loadingMessage: "Indexing…") {
 
 ## Custom scoring
 
-The default ``paletteFuzzyScore(_:_:)`` ranks exact matches highest, then prefix, then
-word-boundary substrings, then consecutive-run subsequences. Supply your own
-``PaletteScorer`` to add weighting, recency, or pinning - return `nil` to exclude a
-candidate, or a higher score to rank it closer to the top.
+The default ``paletteFuzzyScore(_:_:)`` ranks exact matches highest, then prefix, then word-boundary substrings, then consecutive-run subsequences.
+Supply your own ``PaletteScorer`` to add weighting, recency, or pinning - return `nil` to exclude a candidate, or a higher score to rank it closer to the top.
 
 ```swift
 let recencyBoosted: PaletteScorer = { query, text in
@@ -109,12 +104,8 @@ CommandPaletteView(scorer: recencyBoosted) { buildCandidates() }
 
 ### Stateful scorers
 
-``CommandPaletteView`` materializes one ``PaletteResult`` ranking whenever the query or
-candidate list changes, then uses that snapshot for rendering, keyboard navigation,
-scrolling, and Return activation. A scorer that mutates shared state or returns different
-scores for the same inputs across calls within a single refresh can still produce surprising
-orderings, but display and activation will agree on whichever ranking that refresh produced.
+``CommandPaletteView`` materializes one ``PaletteResult`` ranking whenever the query or candidate list changes, then uses that snapshot for rendering, keyboard navigation, scrolling, and Return activation.
+A scorer that mutates shared state or returns different scores for the same inputs across calls within a single refresh can still produce surprising orderings, but display and activation will agree on whichever ranking that refresh produced.
 
-Prefer pure scorers: given the same `(query, text)` pair, return the same score. If you need
-recency or pinning, fold that into the score from immutable inputs (a captured lookup table)
-rather than mutating counters inside the scorer closure.
+Prefer pure scorers: given the same `(query, text)` pair, return the same score.
+If you need recency or pinning, fold that into the score from immutable inputs (a captured lookup table) rather than mutating counters inside the scorer closure.
