@@ -30,6 +30,5 @@ CommandPaletteView { buildCandidates() }
     .commandPaletteExtendedKeyboardNavigation()
 ```
 
-When enabled, `Ctrl-N`/`Ctrl-P` act only with the Control modifier held, so typing `n` or `p` into the search field still works.
-Page Up/Down move by roughly a page of rows, estimated from the surface height.
+When enabled, `Ctrl-N`/`Ctrl-P` act only with the Control modifier held, so typing `n` or `p` into the search field still works. Page Up/Down move by roughly a page of rows, estimated from the surface height.
 Home and End jump to the first and last visible result.
