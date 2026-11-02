@@ -19,8 +19,8 @@ Prose in tracked Markdown files is linted with Vale (see `.vale.ini`).
 Sync styles and lint with:
 
 ```sh
-uvx vale@3.13.0.0 sync
-git ls-files '*.md' | xargs uvx vale@3.13.0.0
+uvx vale@3.26.0.1 sync
+git ls-files '*.md' | xargs uvx vale@3.26.0.1
 ```
 
 Add tests for observable behaviour and update DocC when changing public API.
