@@ -39,17 +39,40 @@ jobs:
 
   ios:
     name: Build & test (iOS Simulator)
-    runs-on: macos-15
+    runs-on: xcode-27
     steps:
       - uses: actions/checkout@v7
       - name: Select Xcode
-        run: sudo xcode-select -s /Applications/Xcode_16.4.app
+        run: sudo xcode-select -s /Applications/Xcode_27.app
+      - name: Select an available iPhone simulator
+        id: simulator
+        run: |
+          python3 - <<'PY'
+          import json
+          import os
+          import subprocess
+
+          devices = json.loads(subprocess.check_output([
+              "xcrun", "simctl", "list", "devices", "available", "--json",
+          ]))["devices"]
+          iphones = [
+              device
+              for runtime, runtime_devices in devices.items()
+              if ".iOS-" in runtime
+              for device in runtime_devices
+              if device["name"].startswith("iPhone")
+          ]
+          if not iphones:
+              raise SystemExit("The selected Xcode has no available iPhone simulator")
+          with open(os.environ["GITHUB_OUTPUT"], "a") as output:
+              output.write(f"id={iphones[0]['udid']}\n")
+          PY
       - name: Build & test on iOS Simulator
         # ``CommandPaletteKit`` is build-only; ``CommandPaletteKit-Package`` includes tests.
         run: |
           xcodebuild test \
             -scheme CommandPaletteKit-Package \
-            -destination 'platform=iOS Simulator,name=iPhone 16'
+            -destination 'platform=iOS Simulator,id=${{ steps.simulator.outputs.id }}'
 
   prose:
     name: Vale
