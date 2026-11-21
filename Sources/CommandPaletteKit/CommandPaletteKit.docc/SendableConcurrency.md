@@ -16,7 +16,7 @@ These value types are safe to pass across concurrency domains:
 
 ### Non-Sendable by design
 
-``PaletteResult`` carries a main-actor ``PaletteResult/action`` closure.
+``PaletteResult`` includes a main-actor ``PaletteResult/action`` closure.
 It is marked `@unchecked Sendable` only so candidate arrays can be stored in generic containers that require a Sendable element type.
 Callers remain responsible for keeping action closures main-actor isolated and not sharing results across actors.
 

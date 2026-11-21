@@ -38,7 +38,7 @@ struct InspectorPaletteApp: View {
 
 ### Tips
 
-- Keep the palette width near the default 620 points so rows stay readable in the inspector.
+- Use a palette width near the default 620 points for readable inspector rows.
 - Use ``PaletteResult/showsOnlyWhenSearching`` for large command catalogs so the empty query list stays short.
 - Apply ``SwiftUICore/View/commandPaletteStyle(_:)`` on the detail column to match your app chrome without affecting the sidebar.
 

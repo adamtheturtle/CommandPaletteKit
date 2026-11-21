@@ -11,7 +11,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 ### Fixed
 
 - Materialize one result snapshot so display, navigation, and Return activation share the same ranking when a scorer is stateful.
-- Measure custom row heights for Page Up/Down instead of assuming a fixed 36-point row.
+- Calculate page movement from the measured height of each row.
 - Reject stale async candidate loads after cancellation or a newer generation.
 - Bound top-result selection so large catalogs are not fully sorted before `resultLimit`.
 - Normalize non-finite and oversized palette width/height before layout.
