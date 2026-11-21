@@ -1,11 +1,11 @@
 # Customization
 
-Override only what you need - every knob has a default that reproduces the shipped look.
+Override the settings you want to change from the standard appearance.
 
 ## Overview
 
 The zero-config call site stays short because everything below has a default.
-Reach for a knob only when you want to change it.
+Set a property to change its default value.
 
 | Knob | Where | Default |
 |---|---|---|
@@ -36,7 +36,7 @@ CommandPaletteView(
 
 ## Styling
 
-Apply ``CommandPaletteStyle`` with ``SwiftUICore/View/commandPaletteStyle(_:)`` to change the colours and metrics of the surface and its rows.
+Apply ``CommandPaletteStyle`` with ``SwiftUICore/View/commandPaletteStyle(_:)`` to change the colours and dimensions of the palette and its rows.
 Unset values fall back to the defaults.
 
 Use ``CommandPaletteStyle/backgroundMaterial`` for a vibrancy or material-backed surface:
@@ -105,7 +105,7 @@ CommandPaletteView(scorer: recencyBoosted) { buildCandidates() }
 ### Stateful scorers
 
 ``CommandPaletteView`` materializes one ``PaletteResult`` ranking whenever the query or candidate list changes, then uses that snapshot for rendering, keyboard navigation, scrolling, and Return activation.
-A scorer that mutates shared state or returns different scores for the same inputs across calls within a single refresh can still produce surprising orderings, but display and activation will agree on whichever ranking that refresh produced.
+A scorer that mutates shared state or returns different scores for the same inputs across calls within one refresh can still produce surprising orderings, but display and activation will agree on whichever ranking that refresh produced.
 
 Prefer pure scorers: given the same `(query, text)` pair, return the same score.
-If you need recency or pinning, fold that into the score from immutable inputs (a captured lookup table) rather than mutating counters inside the scorer closure.
+If you need recency or pinning, calculate it from immutable inputs such as a captured lookup table.

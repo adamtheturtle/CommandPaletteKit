@@ -5,7 +5,7 @@ Present the palette from a menu bar extra on macOS.
 ## Overview
 
 Menu bar apps often expose a compact command surface through a ``MenuBarExtra``.
-Pair it with ``CommandPaletteView`` so users can fuzzy-search actions that are not worth listing individually in the menu.
+Pair it with ``CommandPaletteView`` to offer fuzzy search for actions outside the menu.
 
 ### Present from a menu bar extra
 

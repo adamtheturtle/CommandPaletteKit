@@ -5,10 +5,10 @@ A dependency-free, Combine-free SwiftUI command palette (⌘K) for macOS and iPa
 ## Overview
 
 `CommandPaletteKit` is an *action* palette, not just a search box.
-Each result carries a `@MainActor` action for its activation behavior, such as changing views or executing a command.
+Each result includes a `@MainActor` action for its activation behavior, such as changing views or executing a command.
 An action can also select a context or dismiss the palette.
 Present ``CommandPaletteView`` however you like, typically as a sheet over your main window.
-Give it a closure that builds the candidates, and the palette owns the query, fuzzy matching, keyboard navigation, and selection for you.
+Give it a closure that builds the candidates, and the palette manages the query, fuzzy matching, keyboard navigation, and selection.
 
 - **No dependencies, no Combine.**
   Pure SwiftUI plus a small bit of AppKit for one macOS keyboard fix.
@@ -17,7 +17,7 @@ Give it a closure that builds the candidates, and the palette owns the query, fu
   A self-contained scorer (exact → prefix → word-boundary substring → consecutive-run subsequence) with no index to build.
   Bring your own ``PaletteScorer`` to add weighting, recency, or pinning.
 - **Customizable with sensible defaults.**
-  Every knob has a default that reproduces the shipped look, so the zero-configuration call site stays short.
+  The defaults produce the standard appearance.
 - **macOS- and iPad-robust.**
   Handles the papercuts an iOS-first port misses: AppKit's field editor swallowing the arrow keys, highlight/scroll drift as results re-sort, unified hover-and-keyboard selection, a VoiceOver `.isSelected` trait, and hardware keyboard navigation on both platforms.
 
