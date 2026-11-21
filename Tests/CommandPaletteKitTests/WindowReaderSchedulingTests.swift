@@ -17,6 +17,7 @@ enum PaletteWindowReaderDeferral {
 @Suite("WindowReader scheduling")
 struct WindowReaderSchedulingTests {
     @Test("Window resolution is deferred off the view update")
+    @MainActor
     func defersStateUpdate() async {
         final class Flag: @unchecked Sendable {
             private let lock = NSLock()
